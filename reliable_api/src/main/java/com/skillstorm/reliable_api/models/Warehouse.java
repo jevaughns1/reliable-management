@@ -12,12 +12,14 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min; 
 
 @Entity
+@Table(name = "warehouses")
 @EntityListeners(AuditingEntityListener.class)
-@Table(name= "warehouses")
 public class Warehouse {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +29,7 @@ public class Warehouse {
     private String name;
     @Column(name = "location", nullable = false)
     private String location;
+    @Min(value = 1, message = "Maximum capacity must be at least 1")
     @Column(name = "max_capacity", nullable = false)
     private int maxCapacity;
     @Min(value = 0, message = "Current capacity cannot be negative")
@@ -38,6 +41,7 @@ public class Warehouse {
     @LastModifiedDate // updates on every subsequent save/update
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
     
     //CONSTRUCTORS
     public Warehouse() {
@@ -53,14 +57,12 @@ public class Warehouse {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
-    public Warehouse(Long warehouseId, String name, String location, int maxCapacity,
-            @Min(value = 0, message = "Current capacity cannot be negative") int currentCapacity) {
-        this.warehouseId = warehouseId;
-        this.name = name;
-        this.location = location;
-        this.maxCapacity = maxCapacity;
-        this.currentCapacity = currentCapacity;
-    }
+   public Warehouse(String name, String location, int maxCapacity) {
+    this.name = name;
+    this.location = location;
+    this.maxCapacity = maxCapacity;
+    this.currentCapacity = 0;
+}
    
 // GETTERS/SETTERS
     public Long getWarehouseId() {
@@ -169,8 +171,16 @@ public class Warehouse {
         return true;
     }
 
+         // JPA lifecycle callbacks
+    @PrePersist
+    public void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = this.createdAt;
+    }
 
-
-
+    @PreUpdate
+    public void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 
 }
