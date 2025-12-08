@@ -30,6 +30,7 @@ public class ProductUpdateDTO {
     private Boolean expirationRequired;
     @NotNull
     private  BigDecimal price;
+    
     public BigDecimal getPrice() {
         return price;
     }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,5 +53,10 @@ public class ProductController {
     public ResponseEntity<ProductDTO> putProduct(@PathVariable String id, @RequestBody @Valid ProductUpdateDTO product) {
         
       return new ResponseEntity<>( productService.updateProduct(id,product),HttpStatus.OK);
+    }
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable String id){
+        productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
     }
 }

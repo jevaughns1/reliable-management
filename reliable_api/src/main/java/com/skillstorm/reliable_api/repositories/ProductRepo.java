@@ -1,5 +1,6 @@
 package com.skillstorm.reliable_api.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +11,7 @@ import com.skillstorm.reliable_api.models.Product;
 @Repository
 public interface ProductRepo extends JpaRepository<Product, Long> {
 
-    Optional<Product>  findByPublicId(String publicId);
+    Optional<Product>  findByPublicIdAndIsDeletedFalse(String publicId);
     
+    List<Product>  findAllByIsDeletedFalse();
 }

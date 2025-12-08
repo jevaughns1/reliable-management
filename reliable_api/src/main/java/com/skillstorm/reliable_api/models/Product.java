@@ -2,16 +2,19 @@ package com.skillstorm.reliable_api.models;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -36,10 +39,7 @@ private String sku;
     @Column(columnDefinition = "TEXT")
     private String description;
 
-     @ManyToOne
-    @JoinColumn(name = "category_id", foreignKey = @ForeignKey(name = "fk_product_category"))
-    private Category category;
-
+   
     @Column(length = 50)
     private String unit;
 
@@ -56,6 +56,13 @@ private String sku;
     private LocalDateTime updatedAt = LocalDateTime.now();
       @Column(nullable = false)
     private BigDecimal price;
+    @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT FALSE")
+private Boolean isDeleted = false;
+ @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<WarehouseInventory> warehouseInventory = new ArrayList<>();
+@ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
   
 
@@ -87,12 +94,13 @@ private String sku;
      public Product() {
     }
 
+     
      @Override
     public String toString() {
         return "Product [productId=" + productId + ", publicId=" + publicId + ", name=" + name + ", sku=" + sku
                 + ", description=" + description + ", category=" + category + ", unit=" + unit + ", isHazardous="
                 + isHazardous + ", expirationRequired=" + expirationRequired + ", createdAt=" + createdAt
-                + ", updatedAt=" + updatedAt + ", price=" + price + "]";
+                + ", updatedAt=" + updatedAt + ", price=" + price + ", isDeleted=" + isDeleted + "]";
     }
 
      @Override
@@ -111,11 +119,12 @@ private String sku;
         result = prime * result + ((createdAt == null) ? 0 : createdAt.hashCode());
         result = prime * result + ((updatedAt == null) ? 0 : updatedAt.hashCode());
         result = prime * result + ((price == null) ? 0 : price.hashCode());
+        result = prime * result + ((isDeleted == null) ? 0 : isDeleted.hashCode());
         return result;
     }
 
-      @Override
-      public boolean equals(Object obj) {
+     @Override
+     public boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -183,8 +192,13 @@ private String sku;
                 return false;
         } else if (!price.equals(other.price))
             return false;
+        if (isDeleted == null) {
+            if (other.isDeleted != null)
+                return false;
+        } else if (!isDeleted.equals(other.isDeleted))
+            return false;
         return true;
-      }
+     }
 
      @PrePersist
     public void onCreate() {
@@ -291,5 +305,13 @@ private String sku;
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public Boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
     }
 }

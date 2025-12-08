@@ -43,12 +43,9 @@ public class ProductService {
     }
     
    
-    
-    // --- Public Service Methods ---
-
     @Transactional(readOnly = true)
     public List<ProductDTO> getAllProducts() {
-        return productRepo.findAll().stream()
+        return productRepo.findAllByIsDeletedFalse().stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
@@ -79,7 +76,7 @@ return toDTO(savedProduct);
 
 @Transactional
 public ProductDTO patchProduct(String publicId, ProductPatchDTO dto) {
-    Product product = productRepo.findByPublicId(publicId)
+    Product product = productRepo.findByPublicIdAndIsDeletedFalse(publicId)
             .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
     // Update category if provided
@@ -100,7 +97,7 @@ public ProductDTO patchProduct(String publicId, ProductPatchDTO dto) {
 @Transactional
 public <T> ProductDTO updateProduct(String publicId, T dto) {
 
-    Product product = productRepo.findByPublicId(publicId)
+    Product product = productRepo.findByPublicIdAndIsDeletedFalse(publicId)
             .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
     // 2. Update category if dto has categoryId field
@@ -118,11 +115,16 @@ public <T> ProductDTO updateProduct(String publicId, T dto) {
     }
 
     modelMapper.map(dto, product);
-
-    // 4. Save and return
     Product savedProduct = productRepo.save(product);
     return toDTO(savedProduct);
 }
+
+
+    public void deleteProduct(String id) {
+        Product product = productRepo.findByPublicIdAndIsDeletedFalse(id).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        product.setIsDeleted(true);
+        productRepo.save(product);
+    }
 
 
 }
