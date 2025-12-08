@@ -66,7 +66,7 @@ public CategoryUpdateDTO updateCategory(Long id, CategoryUpdateDTO categoryDTO){
 }
 
 @Transactional
-    public CategoryDTO patchCategory(Long id, CategoryPatchDTO request) {
+    public CategoryDTO patchCategory(Long id, CategoryPatchDTO categoryDTO) {
         // Find existing resource, throwing 404 if not found
         Category existingCategory = categoryRepo.findById(id).orElseThrow(
             () -> new ResourceNotFoundException("Category not found with ID: " + id)
@@ -74,7 +74,7 @@ public CategoryUpdateDTO updateCategory(Long id, CategoryUpdateDTO categoryDTO){
         
         // Map the partial DTO onto the existing entity.
         // Because SkipNullEnabled is TRUE, ONLY non-null fields from the DTO are copied.
-        modelMapper.map(request, existingCategory); 
+        modelMapper.map(categoryDTO, existingCategory); 
         
         Category updatedEntity = categoryRepo.save(existingCategory);
         return toDTO(updatedEntity);
