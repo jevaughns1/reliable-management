@@ -27,12 +27,11 @@ public class ProductService {
         this.categoryRepo = categoryRepo;
         this.modelMapper = modelMapper;
 
-        // CRITICAL CONFIG for UPDATE/PATCH: Enable null skipping globally
+     
         this.modelMapper.getConfiguration().setSkipNullEnabled(true);
         this.modelMapper.getConfiguration().setAmbiguityIgnored(true);
     }
-    
-    // Helper method to convert Entity to Response DTO
+
     private ProductDTO toDTO(Product entity) {
         ProductDTO dto = modelMapper.map(entity, ProductDTO.class);
         if (entity.getCategory() != null) {
@@ -100,7 +99,7 @@ public <T> ProductDTO updateProduct(String publicId, T dto) {
     Product product = productRepo.findByPublicIdAndIsDeletedFalse(publicId)
             .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-    // 2. Update category if dto has categoryId field
+    //  Update category if dto has categoryId field
     try {
         Long categoryId = (Long) dto.getClass().getMethod("getCategoryId").invoke(dto);
         if (categoryId != null) {

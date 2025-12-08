@@ -9,6 +9,7 @@ import java.util.UUID;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -60,7 +61,8 @@ private String sku;
 private Boolean isDeleted = false;
  @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<WarehouseInventory> warehouseInventory = new ArrayList<>();
-@ManyToOne
+    
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
 
@@ -94,13 +96,13 @@ private Boolean isDeleted = false;
      public Product() {
     }
 
-     
      @Override
     public String toString() {
         return "Product [productId=" + productId + ", publicId=" + publicId + ", name=" + name + ", sku=" + sku
-                + ", description=" + description + ", category=" + category + ", unit=" + unit + ", isHazardous="
-                + isHazardous + ", expirationRequired=" + expirationRequired + ", createdAt=" + createdAt
-                + ", updatedAt=" + updatedAt + ", price=" + price + ", isDeleted=" + isDeleted + "]";
+                + ", description=" + description + ", unit=" + unit + ", isHazardous=" + isHazardous
+                + ", expirationRequired=" + expirationRequired + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt
+                + ", price=" + price + ", isDeleted=" + isDeleted + ", warehouseInventory=" + warehouseInventory
+                + ", category=" + category + "]";
     }
 
      @Override
@@ -112,7 +114,6 @@ private Boolean isDeleted = false;
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         result = prime * result + ((sku == null) ? 0 : sku.hashCode());
         result = prime * result + ((description == null) ? 0 : description.hashCode());
-        result = prime * result + ((category == null) ? 0 : category.hashCode());
         result = prime * result + ((unit == null) ? 0 : unit.hashCode());
         result = prime * result + ((isHazardous == null) ? 0 : isHazardous.hashCode());
         result = prime * result + ((expirationRequired == null) ? 0 : expirationRequired.hashCode());
@@ -120,6 +121,8 @@ private Boolean isDeleted = false;
         result = prime * result + ((updatedAt == null) ? 0 : updatedAt.hashCode());
         result = prime * result + ((price == null) ? 0 : price.hashCode());
         result = prime * result + ((isDeleted == null) ? 0 : isDeleted.hashCode());
+        result = prime * result + ((warehouseInventory == null) ? 0 : warehouseInventory.hashCode());
+        result = prime * result + ((category == null) ? 0 : category.hashCode());
         return result;
     }
 
@@ -157,11 +160,6 @@ private Boolean isDeleted = false;
                 return false;
         } else if (!description.equals(other.description))
             return false;
-        if (category == null) {
-            if (other.category != null)
-                return false;
-        } else if (!category.equals(other.category))
-            return false;
         if (unit == null) {
             if (other.unit != null)
                 return false;
@@ -196,6 +194,16 @@ private Boolean isDeleted = false;
             if (other.isDeleted != null)
                 return false;
         } else if (!isDeleted.equals(other.isDeleted))
+            return false;
+        if (warehouseInventory == null) {
+            if (other.warehouseInventory != null)
+                return false;
+        } else if (!warehouseInventory.equals(other.warehouseInventory))
+            return false;
+        if (category == null) {
+            if (other.category != null)
+                return false;
+        } else if (!category.equals(other.category))
             return false;
         return true;
      }
@@ -313,5 +321,13 @@ private Boolean isDeleted = false;
 
     public void setIsDeleted(Boolean isDeleted) {
         this.isDeleted = isDeleted;
+    }
+
+    public List<WarehouseInventory> getWarehouseInventory() {
+        return warehouseInventory;
+    }
+
+    public void setWarehouseInventory(List<WarehouseInventory> warehouseInventory) {
+        this.warehouseInventory = warehouseInventory;
     }
 }

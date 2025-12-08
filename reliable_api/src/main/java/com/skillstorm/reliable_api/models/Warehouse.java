@@ -1,17 +1,19 @@
 package com.skillstorm.reliable_api.models;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -35,12 +37,15 @@ public class Warehouse {
     @Min(value = 0, message = "Current capacity cannot be negative")
     @Column(name = "current_capacity", nullable = false)
     private int currentCapacity;
-    @CreatedDate // created on first save
+  
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-    @LastModifiedDate // updates on every subsequent save/update
+    
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+     @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL)
+    private List<WarehouseInventory> inventory = new ArrayList<>();
 
     
     //CONSTRUCTORS
@@ -64,7 +69,72 @@ public class Warehouse {
     this.currentCapacity = 0;
 }
    
-// GETTERS/SETTERS
+@Override
+public String toString() {
+    return "Warehouse [warehouseId=" + warehouseId + ", name=" + name + ", location=" + location + ", maxCapacity="
+            + maxCapacity + ", currentCapacity=" + currentCapacity + ", createdAt=" + createdAt + ", updatedAt="
+            + updatedAt + ", inventory=" + inventory + "]";
+}
+    @Override
+public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((warehouseId == null) ? 0 : warehouseId.hashCode());
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
+    result = prime * result + ((location == null) ? 0 : location.hashCode());
+    result = prime * result + maxCapacity;
+    result = prime * result + currentCapacity;
+    result = prime * result + ((createdAt == null) ? 0 : createdAt.hashCode());
+    result = prime * result + ((updatedAt == null) ? 0 : updatedAt.hashCode());
+    result = prime * result + ((inventory == null) ? 0 : inventory.hashCode());
+    return result;
+}
+   @Override
+   public boolean equals(Object obj) {
+    if (this == obj)
+        return true;
+    if (obj == null)
+        return false;
+    if (getClass() != obj.getClass())
+        return false;
+    Warehouse other = (Warehouse) obj;
+    if (warehouseId == null) {
+        if (other.warehouseId != null)
+            return false;
+    } else if (!warehouseId.equals(other.warehouseId))
+        return false;
+    if (name == null) {
+        if (other.name != null)
+            return false;
+    } else if (!name.equals(other.name))
+        return false;
+    if (location == null) {
+        if (other.location != null)
+            return false;
+    } else if (!location.equals(other.location))
+        return false;
+    if (maxCapacity != other.maxCapacity)
+        return false;
+    if (currentCapacity != other.currentCapacity)
+        return false;
+    if (createdAt == null) {
+        if (other.createdAt != null)
+            return false;
+    } else if (!createdAt.equals(other.createdAt))
+        return false;
+    if (updatedAt == null) {
+        if (other.updatedAt != null)
+            return false;
+    } else if (!updatedAt.equals(other.updatedAt))
+        return false;
+    if (inventory == null) {
+        if (other.inventory != null)
+            return false;
+    } else if (!inventory.equals(other.inventory))
+        return false;
+    return true;
+   }
+    
     public Long getWarehouseId() {
         return warehouseId;
     }
@@ -108,70 +178,7 @@ public class Warehouse {
         this.updatedAt = updatedAt;
     }   
       
-    
 
-     @Override
-    public String toString() {
-        return "Warehouse [warehouseId=" + warehouseId + ", name=" + name + ", location=" + location + ", maxCapacity="
-                + maxCapacity + ", currentCapacity=" + currentCapacity + ", createdAt=" + createdAt + ", updatedAt="
-                + updatedAt + "]";
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((warehouseId == null) ? 0 : warehouseId.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((location == null) ? 0 : location.hashCode());
-        result = prime * result + maxCapacity;
-        result = prime * result + currentCapacity;
-        result = prime * result + ((createdAt == null) ? 0 : createdAt.hashCode());
-        result = prime * result + ((updatedAt == null) ? 0 : updatedAt.hashCode());
-        return result;
-    }
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Warehouse other = (Warehouse) obj;
-        if (warehouseId == null) {
-            if (other.warehouseId != null)
-                return false;
-        } else if (!warehouseId.equals(other.warehouseId))
-            return false;
-        if (name == null) {
-            if (other.name != null)
-                return false;
-        } else if (!name.equals(other.name))
-            return false;
-        if (location == null) {
-            if (other.location != null)
-                return false;
-        } else if (!location.equals(other.location))
-            return false;
-        if (maxCapacity != other.maxCapacity)
-            return false;
-        if (currentCapacity != other.currentCapacity)
-            return false;
-        if (createdAt == null) {
-            if (other.createdAt != null)
-                return false;
-        } else if (!createdAt.equals(other.createdAt))
-            return false;
-        if (updatedAt == null) {
-            if (other.updatedAt != null)
-                return false;
-        } else if (!updatedAt.equals(other.updatedAt))
-            return false;
-        return true;
-    }
-
-         // JPA lifecycle callbacks
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -181,6 +188,12 @@ public class Warehouse {
     @PreUpdate
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+    public List<WarehouseInventory> getInventory() {
+        return inventory;
+    }
+    public void setInventory(List<WarehouseInventory> inventory) {
+        this.inventory = inventory;
     }
 
 }

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import com.skillstorm.reliable_api.dtos.CategoryDTO;
 import com.skillstorm.reliable_api.dtos.CategoryPatchDTO;
-import com.skillstorm.reliable_api.dtos.CategoryUpdateDTO;
 import com.skillstorm.reliable_api.exceptions.ResourceNotFoundException;
 import com.skillstorm.reliable_api.models.Category;
 import com.skillstorm.reliable_api.repositories.CategoryRepo;
@@ -52,17 +51,15 @@ if(categoryRepo.existsByNameAllIgnoreCase(categoryDTO.getName())){
     }
 
  @Transactional   
-public CategoryUpdateDTO updateCategory(Long id, CategoryUpdateDTO categoryDTO){
-     if(categoryDTO.getName() ==null|| categoryDTO.getDescription() ==null ){
-     throw new IllegalArgumentException("PUT requires all resource fields to be provided.");
-    }
+public <T>CategoryDTO updateCategory(Long id, T categoryDTO){
+ 
     Category category = categoryRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException("Category not found with ID: " + id));
     
     modelMapper.map(categoryDTO,category);
    
     Category updatedCategory = categoryRepo.save(category);
  
-    return modelMapper.map(updatedCategory,CategoryUpdateDTO.class );
+    return modelMapper.map(updatedCategory,CategoryDTO.class );
 }
 
 @Transactional
