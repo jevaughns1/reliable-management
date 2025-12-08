@@ -32,7 +32,6 @@ public class WarehouseService {
 
     }
 
-
 public Warehouse patchWarehouse(Long id, WarehouseUpdateDTO dto) {
     Warehouse existing = warehouseRepo.findById(id)
             .orElseThrow(() -> new RuntimeException("Warehouse not found"));
@@ -52,6 +51,5 @@ public List<Warehouse> createWarehouses(List<Warehouse> warehouses){
 
     return allWarehouses;
 }
-
 
 }
