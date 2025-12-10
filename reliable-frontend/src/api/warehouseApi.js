@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8282";
+const API_URL = "http://18.219.1.224:8080";
 
 const api = axios.create({
   baseURL: API_URL,
@@ -16,6 +16,8 @@ export const getAllWarehouses = async () => {
 
 
 
+
+
 export const getAllInventory = async () => {
   const res = await api.get("/warehouses");
   return res.data;
@@ -25,6 +27,17 @@ export const getInventoryByWarehouse = async (warehouseId) => {
   const res = await api.get(`/warehouses/inventory/${warehouseId}`);
   return res.data;
 };
+
+export const getAllCategories = async () => {
+  const res = await api.get("/api/categories");
+  return res.data;
+};
+
+export const getAllProducts = async () => {
+  const res = await api.get("/api/warehouse/products");
+  return res.data;
+};
+
 
 export const addProductToWarehouse = async (warehouseId, dto) => {
   const res = await api.post(`/warehouses/inventory/${warehouseId}`, dto);
@@ -51,7 +64,12 @@ export const transferInventory = async (transferDto) => {
 };
 
 
-export const getAllProducts = async () => {
-  const res = await api.get("/api/warehouse/products");
+
+export const createWarehouse =async(dto)=>{
+  const res = await api.post(`/warehouses`, dto);
+  return res.data;
+}
+export const createProduct = async (productDto) => {
+  const res = await api.post("/products", productDto);
   return res.data;
 };

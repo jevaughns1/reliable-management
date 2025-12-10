@@ -26,8 +26,11 @@ import jakarta.validation.Valid;
 
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
-@RequestMapping("api/warehouse/products")
+@CrossOrigin(origins = {
+    "http://localhost:5173",
+    "https://main.d2ndcnwudegqtw.amplifyapp.com"
+})
+@RequestMapping("/api/warehouse/products")
 public class ProductController {
 
     private final ProductService productService;

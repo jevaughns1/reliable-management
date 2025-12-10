@@ -4,9 +4,12 @@ import './index.css'
 import App from './App.jsx'
 import { Amplify } from "aws-amplify";
 import awsExports from "./aws-exports";
+import { Toaster } from "react-hot-toast";
+
 Amplify.configure(awsExports);
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />
+    <Toaster position="top-right" />
   </StrictMode>,
 )

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
+import toast from "react-hot-toast";
+
 import {
   updateInventory,
   deleteInventory,
@@ -13,27 +15,49 @@ export default function ProductModal({ item, warehouseId, show, onClose }) {
   const [destinationId, setDestinationId] = useState("");
 
   const handleUpdate = async () => {
-    await updateInventory(warehouseId, item.productPublicId, {
-      quantity,
-      storageLocation,
-      expirationDate,
-    });
-    onClose();
+    try {
+      await updateInventory(warehouseId, item.productPublicId, {
+        quantity,
+        storageLocation,
+        expirationDate,
+      });
+
+      toast.success("Inventory updated!");
+      onClose();
+    } catch (err) {
+      console.error(err);
+      toast.error("Update failed");
+    }
   };
 
   const handleDelete = async () => {
-    await deleteInventory(warehouseId, item.productPublicId);
-    onClose();
+    try {
+      await deleteInventory(warehouseId, item.productPublicId);
+
+      toast.success("Item deleted!");
+      onClose();
+    } catch (err) {
+      console.error(err);
+      toast.error("Delete failed");
+    }
   };
 
+
   const handleTransfer = async () => {
-    await transferInventory({
-      productPublicId: item.productPublicId,
-      sourceWarehouseId: warehouseId,
-      destinationWarehouseId: parseInt(destinationId),
-      transferNotes: "Full quantity transfer",
-    });
-    onClose();
+    try {
+      await transferInventory({
+        productPublicId: item.productPublicId,
+        sourceWarehouseId: warehouseId,
+        destinationWarehouseId: parseInt(destinationId),
+        transferNotes: `${item.name} was transferred to ${destinationId}`,
+      });
+
+      toast.success("Product transferred!");
+      onClose();
+    } catch (err) {
+      console.error(err);
+      toast.error("Transfer failed");
+    }
   };
 
   return (
@@ -44,6 +68,7 @@ export default function ProductModal({ item, warehouseId, show, onClose }) {
 
       <Modal.Body>
         <Form>
+          {/* QUANTITY */}
           <Form.Group className="mb-3">
             <Form.Label>Quantity</Form.Label>
             <Form.Control
@@ -53,6 +78,7 @@ export default function ProductModal({ item, warehouseId, show, onClose }) {
             />
           </Form.Group>
 
+          {/* STORAGE */}
           <Form.Group className="mb-3">
             <Form.Label>Storage Location</Form.Label>
             <Form.Control
@@ -61,6 +87,7 @@ export default function ProductModal({ item, warehouseId, show, onClose }) {
             />
           </Form.Group>
 
+          {/* EXPIRATION */}
           <Form.Group className="mb-3">
             <Form.Label>Expiration Date</Form.Label>
             <Form.Control
@@ -70,6 +97,7 @@ export default function ProductModal({ item, warehouseId, show, onClose }) {
             />
           </Form.Group>
 
+          {/* UPDATE + DELETE */}
           <div className="d-flex gap-2 mb-3">
             <Button variant="primary" className="w-50" onClick={handleUpdate}>
               Update
@@ -81,6 +109,7 @@ export default function ProductModal({ item, warehouseId, show, onClose }) {
 
           <hr />
 
+          {/* TRANSFER */}
           <h5>Transfer Product</h5>
           <Form.Control
             className="mb-2"
