@@ -55,13 +55,7 @@ public class ProductService {
 
     
     @Transactional
-    public List<ProductDTO> createProduct(List<ProductDTO> requestDTOs) {
-        return requestDTOs.stream()
-                .map(this::createSingle)
-                .collect(Collectors.toList());
-    }
-
-    private ProductDTO createSingle(ProductDTO dto) {
+    public  ProductDTO createProduct(ProductDTO dto) {
 
         Product entity = modelMapper.map(dto, Product.class);
 

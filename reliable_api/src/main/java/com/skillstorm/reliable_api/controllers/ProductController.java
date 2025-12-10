@@ -46,7 +46,7 @@ public class ProductController {
 
     }
     @PostMapping()
-    public ResponseEntity<List<ProductDTO>> postProduct(@RequestBody List<ProductDTO> product) {
+    public ResponseEntity<ProductDTO> postProduct(@RequestBody ProductDTO product) {
         
         return new ResponseEntity<>( productService.createProduct(product),HttpStatus.OK);
     }
