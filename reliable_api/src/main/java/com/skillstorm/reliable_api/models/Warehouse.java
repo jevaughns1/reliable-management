@@ -17,168 +17,88 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Min; 
+import jakarta.validation.constraints.Min;
 
 @Entity
 @Table(name = "warehouses")
 @EntityListeners(AuditingEntityListener.class)
 public class Warehouse {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="warehouse_id")
-    private Long warehouseId; 
-    @Column(name = "name", length = 150, nullable = false, unique = true)
+    @Column(name = "warehouse_id")
+    private Long warehouseId;
+
+    @Column(nullable = false, unique = true, length = 150)
     private String name;
-    @Column(name = "location", nullable = false)
+
+    @Column(nullable = false)
     private String location;
+
     @Min(value = 1, message = "Maximum capacity must be at least 1")
     @Column(name = "max_capacity", nullable = false)
     private int maxCapacity;
+
     @Min(value = 0, message = "Current capacity cannot be negative")
     @Column(name = "current_capacity", nullable = false)
     private int currentCapacity;
-  
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-    
+
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-     @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WarehouseInventory> inventory = new ArrayList<>();
 
-    
-    //CONSTRUCTORS
-    public Warehouse() {
-    }
-    public Warehouse(Long warehouseId, String name, String location, int maxCapacity,
-            @Min(value = 0, message = "Current capacity cannot be negative") int currentCapacity,
-            LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.warehouseId = warehouseId;
-        this.name = name;
-        this.location = location;
-        this.maxCapacity = maxCapacity;
-        this.currentCapacity = currentCapacity;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-   public Warehouse(String name, String location, int maxCapacity) {
-    this.name = name;
-    this.location = location;
-    this.maxCapacity = maxCapacity;
-    this.currentCapacity = 0;
-}
-   
-@Override
-public String toString() {
-    return "Warehouse [warehouseId=" + warehouseId + ", name=" + name + ", location=" + location + ", maxCapacity="
-            + maxCapacity + ", currentCapacity=" + currentCapacity + ", createdAt=" + createdAt + ", updatedAt="
-            + updatedAt + ", inventory=" + inventory + "]";
-}
-    @Override
-public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((warehouseId == null) ? 0 : warehouseId.hashCode());
-    result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result = prime * result + ((location == null) ? 0 : location.hashCode());
-    result = prime * result + maxCapacity;
-    result = prime * result + currentCapacity;
-    result = prime * result + ((createdAt == null) ? 0 : createdAt.hashCode());
-    result = prime * result + ((updatedAt == null) ? 0 : updatedAt.hashCode());
-    result = prime * result + ((inventory == null) ? 0 : inventory.hashCode());
-    return result;
-}
-   @Override
-   public boolean equals(Object obj) {
-    if (this == obj)
-        return true;
-    if (obj == null)
-        return false;
-    if (getClass() != obj.getClass())
-        return false;
-    Warehouse other = (Warehouse) obj;
-    if (warehouseId == null) {
-        if (other.warehouseId != null)
-            return false;
-    } else if (!warehouseId.equals(other.warehouseId))
-        return false;
-    if (name == null) {
-        if (other.name != null)
-            return false;
-    } else if (!name.equals(other.name))
-        return false;
-    if (location == null) {
-        if (other.location != null)
-            return false;
-    } else if (!location.equals(other.location))
-        return false;
-    if (maxCapacity != other.maxCapacity)
-        return false;
-    if (currentCapacity != other.currentCapacity)
-        return false;
-    if (createdAt == null) {
-        if (other.createdAt != null)
-            return false;
-    } else if (!createdAt.equals(other.createdAt))
-        return false;
-    if (updatedAt == null) {
-        if (other.updatedAt != null)
-            return false;
-    } else if (!updatedAt.equals(other.updatedAt))
-        return false;
-    if (inventory == null) {
-        if (other.inventory != null)
-            return false;
-    } else if (!inventory.equals(other.inventory))
-        return false;
-    return true;
-   }
-    
-    public Long getWarehouseId() {
-        return warehouseId;
-    }
-    public void setWarehouseId(Long warehouseId) {
-        this.warehouseId = warehouseId;
-    }
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-    public String getLocation() {
-        return location;
-    }
-    public void setLocation(String location) {
-        this.location = location;
-    }
-    public int getMaxCapacity() {
-        return maxCapacity;
-    }
-    public void setMaxCapacity(int maxCapacity) {
-        this.maxCapacity = maxCapacity;
-    }
-    public int getCurrentCapacity() {
-        return currentCapacity;
-    }
-    public void setCurrentCapacity(int currentCapacity) {
-        this.currentCapacity = currentCapacity;
-    }
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }   
-      
+    // Constructors
+    public Warehouse() {}
 
+    public Warehouse(String name, String location, int maxCapacity) {
+        this.name = name;
+        this.location = location;
+        this.maxCapacity = maxCapacity;
+        this.currentCapacity = 0;
+    }
+
+    public Warehouse(Long warehouseId, String name, String location, int maxCapacity, int currentCapacity,
+                     LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.warehouseId = warehouseId;
+        this.name = name;
+        this.location = location;
+        this.maxCapacity = maxCapacity;
+        this.currentCapacity = currentCapacity;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    // Getters & Setters
+    public Long getWarehouseId() { return warehouseId; }
+    public void setWarehouseId(Long warehouseId) { this.warehouseId = warehouseId; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
+
+    public int getMaxCapacity() { return maxCapacity; }
+    public void setMaxCapacity(int maxCapacity) { this.maxCapacity = maxCapacity; }
+
+    public int getCurrentCapacity() { return currentCapacity; }
+    public void setCurrentCapacity(int currentCapacity) { this.currentCapacity = currentCapacity; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public List<WarehouseInventory> getInventory() { return inventory; }
+    public void setInventory(List<WarehouseInventory> inventory) { this.inventory = inventory; }
+
+    // Lifecycle callbacks
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -189,11 +109,6 @@ public int hashCode() {
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-    public List<WarehouseInventory> getInventory() {
-        return inventory;
-    }
-    public void setInventory(List<WarehouseInventory> inventory) {
-        this.inventory = inventory;
-    }
 
+    
 }

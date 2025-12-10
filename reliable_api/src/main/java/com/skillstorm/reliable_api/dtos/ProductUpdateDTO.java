@@ -19,8 +19,6 @@ public class ProductUpdateDTO {
     @NotNull
     private String description;
     @NotNull
-    private String publicId;
-    @NotNull
     private Long categoryId;
     @NotBlank
     private String unit;
@@ -55,12 +53,7 @@ public class ProductUpdateDTO {
     public void setDescription(String description) {
         this.description = description;
     }
-    public String getPublicId() {
-        return publicId;
-    }
-    public void setPublicId(String publicId) {
-        this.publicId = publicId;
-    }
+
     public Long getCategoryId() {
         return categoryId;
     }
