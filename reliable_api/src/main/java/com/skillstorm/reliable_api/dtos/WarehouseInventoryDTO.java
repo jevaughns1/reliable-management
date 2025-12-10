@@ -15,12 +15,10 @@ public class WarehouseInventoryDTO {
     @Min(1)
     private Integer quantity;
 
-    private String warehouseName;
-    private String warehouseLocation;
     private String storageLocation;
     private LocalDate expirationDate;
 
-    private ProductDTO product; // nested product info
+    private ProductDTO product; 
 
     // Getters and Setters
     public String getProductPublicId() {
@@ -37,19 +35,7 @@ public class WarehouseInventoryDTO {
         this.quantity = quantity;
     }
 
-    public String getWarehouseName() {
-        return warehouseName;
-    }
-    public void setWarehouseName(String warehouseName) {
-        this.warehouseName = warehouseName;
-    }
-
-    public String getWarehouseLocation() {
-        return warehouseLocation;
-    }
-    public void setWarehouseLocation(String warehouseLocation) {
-        this.warehouseLocation = warehouseLocation;
-    }
+  
 
     public String getStorageLocation() {
         return storageLocation;

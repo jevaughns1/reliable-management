@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -25,6 +26,7 @@ import jakarta.validation.Valid;
 
 
 @RestController
+@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("api/warehouse/products")
 public class ProductController {
 
@@ -36,8 +38,9 @@ public class ProductController {
     
     @GetMapping()
     public ResponseEntity<List<ProductDTO>> getProducts() {
-        productService.getAllProducts();
-        return new ResponseEntity<>( productService.getAllProducts(),HttpStatus.OK);
+     
+    return ResponseEntity.ok(productService.getAllProducts());
+
     }
     @PostMapping()
     public ResponseEntity<List<ProductDTO>> postProduct(@RequestBody List<ProductDTO> product) {

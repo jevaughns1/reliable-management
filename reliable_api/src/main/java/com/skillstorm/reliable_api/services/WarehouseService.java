@@ -1,17 +1,18 @@
 package com.skillstorm.reliable_api.services;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import com.skillstorm.reliable_api.dtos.WarehouseDTO;
+import com.skillstorm.reliable_api.dtos.WarehousePatchDTO;
 import com.skillstorm.reliable_api.dtos.WarehouseUpdateDTO;
 import com.skillstorm.reliable_api.models.Warehouse;
 import com.skillstorm.reliable_api.repositories.WarehouseRepo;
 
 import jakarta.transaction.Transactional;
-
-
 
 @Service
 @Transactional
@@ -22,34 +23,45 @@ public class WarehouseService {
 
     public WarehouseService(WarehouseRepo repo, ModelMapper mapper) {
         this.warehouseRepo = repo;
-        this.modelMapper= mapper;
-
-    }
-    
-    public Warehouse createWarehouse(Warehouse warehouse){
-      
-        return warehouseRepo.save(warehouse);
-
+        this.modelMapper = mapper;
+        this.modelMapper.getConfiguration().setSkipNullEnabled(true); 
     }
 
-public Warehouse patchWarehouse(Long id, WarehouseUpdateDTO dto) {
-    Warehouse existing = warehouseRepo.findById(id)
-            .orElseThrow(() -> new RuntimeException("Warehouse not found"));
+ 
+    public WarehouseDTO createWarehouse(WarehouseDTO dto) {
+        Warehouse entity = modelMapper.map(dto, Warehouse.class);
+        Warehouse saved = warehouseRepo.save(entity);
+        return toDTO(saved);
+    }
 
-    modelMapper.map(dto, existing); 
-    return warehouseRepo.save(existing);
-}
+    public List<WarehouseDTO> getWarehouses() {
+        return warehouseRepo.findAll()
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
 
-public List<Warehouse> getWarehouses(){
-    List<Warehouse> allWarehouses = warehouseRepo.findAll();
-    return allWarehouses;
+   
+    public WarehouseDTO updateWarehouse(Long id, WarehouseUpdateDTO dto) {
+        Warehouse existing = warehouseRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Warehouse not found"));
+        modelMapper.getConfiguration().setSkipNullEnabled(false); // overwrite all
+        modelMapper.map(dto, existing);
+        warehouseRepo.save(existing);
+        return toDTO(existing);
+    }
 
-}
 
-public List<Warehouse> createWarehouses(List<Warehouse> warehouses){
-    List<Warehouse> allWarehouses = warehouseRepo.saveAll(warehouses);
+    public WarehouseDTO patchWarehouse(Long id, WarehousePatchDTO dto) {
+        Warehouse existing = warehouseRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Warehouse not found"));
+        modelMapper.getConfiguration().setSkipNullEnabled(true); // skip nulls
+        modelMapper.map(dto, existing);
+        warehouseRepo.save(existing);
+        return toDTO(existing);
+    }
 
-    return allWarehouses;
-}
-
+    private WarehouseDTO toDTO(Warehouse warehouse) {
+        return modelMapper.map(warehouse, WarehouseDTO.class);
+    }
 }

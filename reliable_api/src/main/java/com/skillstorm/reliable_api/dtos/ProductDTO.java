@@ -3,6 +3,7 @@ package com.skillstorm.reliable_api.dtos;
 import java.math.BigDecimal;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class ProductDTO {
@@ -18,7 +19,7 @@ public class ProductDTO {
     private String unit;
     private Boolean isHazardous;
     private Boolean expirationRequired;
-   @NotBlank
+   @NotNull
     private BigDecimal price;
     public BigDecimal getPrice() {
     return price;
