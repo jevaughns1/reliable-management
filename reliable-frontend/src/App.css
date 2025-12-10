@@ -1,0 +1,92 @@
+
+
+:root {
+  --font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  --color-text: #213547;
+  --color-bg: #f5f5f5;
+
+  --color-primary: #646cff;
+  --color-primary-hover: #535bf2;
+
+  --color-card-bg: #ffffff;
+
+  --color-button-bg: #f3f3f3;
+  --color-button-border: #ccc;
+
+  font-family: var(--font-family);
+  line-height: 1.5;
+  font-weight: 400;
+
+  color: var(--color-text);
+  background-color: var(--color-bg);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: #f5f5f5;
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+/* Warehouse Cards */
+.warehouse-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 16px;
+  padding: 20px;
+}
+
+.warehouse-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.inventory-list {
+  margin-top: 10px;
+}
+
+.inventory-item {
+  background: #ececec;
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* MODAL */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  width: 400px;
+}
+
+.close-btn {
+  margin-top: 10px;
+}
+
+button {
+  padding: 8px 12px;
+  margin: 5px 0;
+}
+
+button.danger {
+  background: red;
+  color: white;
+}
