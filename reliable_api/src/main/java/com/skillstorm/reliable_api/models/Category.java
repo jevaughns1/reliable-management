@@ -1,10 +1,14 @@
 package com.skillstorm.reliable_api.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 
@@ -19,16 +23,13 @@ public class Category {
     private String name; 
     @Column(name = "description", length = 300, nullable = true)
     private String description;
-    
+     @OneToMany(mappedBy = "category")
+    private List<Product> products = new ArrayList<>();
   
-    public Category() {
-    }
-    public Category(String name) {
-        this.name = name;
-    }
-    public Category(String name, String description) {
-        this.name = name;
-        this.description = description;
+    @Override
+    public String toString() {
+        return "Category [id=" + id + ", name=" + name + ", description=" + description + ", products=" + products
+                + "]";
     }
     @Override
     public int hashCode() {
@@ -37,10 +38,11 @@ public class Category {
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         result = prime * result + ((description == null) ? 0 : description.hashCode());
+        result = prime * result + ((products == null) ? 0 : products.hashCode());
         return result;
     }
-      @Override
-    public boolean equals(Object obj) {
+     @Override
+     public boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -63,11 +65,21 @@ public class Category {
                 return false;
         } else if (!description.equals(other.description))
             return false;
+        if (products == null) {
+            if (other.products != null)
+                return false;
+        } else if (!products.equals(other.products))
+            return false;
         return true;
+     }
+    public Category() {
     }
-    @Override
-    public String toString() {
-        return "Category [id=" + id + ", name=" + name + ", description=" + description + "]";
+    public Category(String name) {
+        this.name = name;
+    }
+    public Category(String name, String description) {
+        this.name = name;
+        this.description = description;
     }
     public Long getId() {
         return id;
@@ -81,11 +93,19 @@ public class Category {
     public void setName(String name) {
         this.name = name;
     }
-    public String getdescription() {
+    public String getDescription() {
         return description;
     }
-    public void setdescription(String description) {
+    public void setDescription(String description) {
         this.description = description;
-    } 
+    }
+    public List<Product> getProducts() {
+        return products;
+    }
+    public void setProducts(List<Product> products) {
+        this.products = products;
+    }
 
+    
+   
 }

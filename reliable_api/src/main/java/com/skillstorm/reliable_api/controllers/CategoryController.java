@@ -50,15 +50,15 @@ public ResponseEntity<List<CategoryDTO>> getCategory() {
 }
 
 @PutMapping("/{id}")
-public ResponseEntity<CategoryUpdateDTO> putCategory(@PathVariable Long id, @RequestBody @Valid CategoryUpdateDTO category) {
+public ResponseEntity<CategoryDTO> putCategory(@PathVariable Long id, @RequestBody @Valid CategoryUpdateDTO category) {
     
-   CategoryUpdateDTO updatedCategory= categoryService.updateCategory(id,category);
+   CategoryDTO updatedCategory= categoryService.updateCategory(id,category);
     return new ResponseEntity<>(updatedCategory,HttpStatus.OK);
 }
 
 @PatchMapping("/{id}")
 public ResponseEntity<CategoryDTO> patchCategory(@PathVariable Long id, @RequestBody @Valid CategoryPatchDTO category)
-   {CategoryDTO updatedCategory= categoryService.patchCategory(id,category);
+   {CategoryDTO updatedCategory= categoryService.updateCategory(id,category);
     return new ResponseEntity<>(updatedCategory,HttpStatus.OK);
 }
 
@@ -67,7 +67,6 @@ public ResponseEntity<CategoryDTO> patchCategory(@PathVariable Long id, @Request
         
         categoryService.deleteCategory(id);
         
-        // Returns 204 No Content, indicating success with no body
         return ResponseEntity.noContent().build();
     }
 
