@@ -23,7 +23,11 @@ import jakarta.validation.Valid;
 
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {
+    "http://localhost:5173",
+    "https://main.d2ndcnwudegqtw.amplifyapp.com","http://18.219.1.224:8080"
+})
+
 @RequestMapping("/warehouses/inventory")
 public class WarehouseInventoryController {
 

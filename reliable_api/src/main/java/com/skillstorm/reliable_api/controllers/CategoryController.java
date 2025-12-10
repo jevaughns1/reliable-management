@@ -24,8 +24,11 @@ import jakarta.validation.Valid;
 
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
-@RequestMapping("api/categories")
+@CrossOrigin(origins = {
+    "http://localhost:5173",
+    "https://main.d2ndcnwudegqtw.amplifyapp.com"
+})
+@RequestMapping("/api/categories")
 public class CategoryController {
 
   

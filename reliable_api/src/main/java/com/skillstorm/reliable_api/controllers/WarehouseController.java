@@ -22,7 +22,10 @@ import com.skillstorm.reliable_api.services.WarehouseService;
 import jakarta.validation.Valid;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {
+    "http://localhost:5173",
+    "https://main.d2ndcnwudegqtw.amplifyapp.com"
+})
 @RequestMapping("/warehouses")
 public class WarehouseController {
 
