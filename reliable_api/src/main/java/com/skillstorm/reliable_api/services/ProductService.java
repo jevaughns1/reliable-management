@@ -31,6 +31,11 @@ public class ProductService {
 
         this.modelMapper.getConfiguration().setSkipNullEnabled(true);
         this.modelMapper.getConfiguration().setAmbiguityIgnored(true);
+        this.modelMapper.createTypeMap(ProductUpdateDTO.class, Product.class)
+    .addMappings(mapper -> {
+        // EXPLICITLY SKIP mapping the identifier field (product_id)
+        mapper.skip(Product::setProductId); 
+    });
     }
 
    
