@@ -6,17 +6,13 @@ import { getAllWarehouses } from "../api/warehouseApi";
 export default function WarehousePage() {
   const [warehouses, setWarehouses] = useState([]);
 
-  
   useEffect(() => {
-    async function load() {
+    const load=async()=> {
       const data = await getAllWarehouses();
       setWarehouses(data);
-      console.log("WAREHOUSES:", data);
     }
     load();
   }, []);
-
-  // EXPOSE load() so CreateWarehouseForm can refresh the data
   const refreshWarehouses = async () => {
     const data = await getAllWarehouses();
     setWarehouses(data);
@@ -25,7 +21,6 @@ export default function WarehousePage() {
   return (
     <div className="container py-4">
 
-      {/* Form will call refreshWarehouses AFTER successful creation */}
       <CreateWarehouseForm onCreated={refreshWarehouses} />
 
       <div className="row g-3 mt-4">

@@ -1,22 +1,16 @@
 import axios from "axios";
 
-const API_URL = "http://18.219.1.224:8080";
+const API_URL = "http://localhost:8282";
 
 const api = axios.create({
   baseURL: API_URL,
   headers: { "Content-Type": "application/json" }
 });
 
-
-
 export const getAllWarehouses = async () => {
   const res = await api.get("/warehouses");
   return res.data;
 };
-
-
-
-
 
 export const getAllInventory = async () => {
   const res = await api.get("/warehouses");
@@ -27,6 +21,13 @@ export const getInventoryByWarehouse = async (warehouseId) => {
   const res = await api.get(`/warehouses/inventory/${warehouseId}`);
   return res.data;
 };
+export const updateProduct = (id, body) =>
+  api.put(`/api/warehouse/products/${id}`, body);
+
+
+export const deleteProduct = (id) =>
+  api.delete(`${API_URL}/api/warehouse/products/${id}`);
+
 
 export const getAllCategories = async () => {
   const res = await api.get("/api/categories");
@@ -52,6 +53,7 @@ export const updateInventory = async (warehouseId, productPublicId, body) => {
   return res.data;
 };
 
+
 export const deleteInventory = async (warehouseId, productPublicId) => {
   const res = await api.delete(
     `/warehouses/inventory/${warehouseId}/${productPublicId}`
@@ -64,12 +66,11 @@ export const transferInventory = async (transferDto) => {
 };
 
 
-
 export const createWarehouse =async(dto)=>{
   const res = await api.post(`/warehouses`, dto);
   return res.data;
 }
 export const createProduct = async (productDto) => {
-  const res = await api.post("/products", productDto);
+  const res = await api.post("/api/warehouse/products", productDto);
   return res.data;
 };
