@@ -20,8 +20,10 @@ public interface WarehouseInventoryRepo extends JpaRepository<WarehouseInventory
     Optional<WarehouseInventory> findByProduct_ProductId(Long productId);
       @Query("SELECT wi FROM WarehouseInventory wi JOIN FETCH wi.warehouse w JOIN FETCH wi.product p")
     List<WarehouseInventory> findAllWithWarehouseAndProduct();
-  @Query("SELECT wi FROM WarehouseInventory wi JOIN FETCH wi.product WHERE wi.warehouse.warehouseId = :warehouseId")
-    List<WarehouseInventory> findAllWithProductsByWarehouseId(@Param("warehouseId") Long warehouseId);
+@Query("SELECT wi FROM WarehouseInventory wi JOIN FETCH wi.product p " +
+           "WHERE wi.warehouse.warehouseId = :warehouseId " +
+           "AND p.isDeleted = FALSE") 
+    List<WarehouseInventory> findAllWithProductsByWarehouseIdAndIsDeletedFalse(@Param("warehouseId") Long warehouseId);
     List<WarehouseInventory> findByWarehouse(Warehouse warehouse);
    List<WarehouseInventory> findAllByWarehouse_WarehouseId(Long warehouseId);
 }

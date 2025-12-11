@@ -121,7 +121,7 @@ public void deleteInventoryFromWarehouse(Long warehouseId, String productPublicI
         Warehouse warehouse = fetchWarehouse(warehouseId);
 
         List<WarehouseInventory> inventories =
-                warehouseInventoryRepo.findAllWithProductsByWarehouseId(warehouseId);
+                warehouseInventoryRepo.findAllWithProductsByWarehouseIdAndIsDeletedFalse(warehouseId);
 
         List<WarehouseInventoryDTO> inventoryDTOs = inventories.stream()
                 .map(this::toDTO)

@@ -9,8 +9,6 @@ export default function WarehouseCard({ warehouse }) {
         <div className="card-header">   <h5 className="card-title">{warehouse.name}</h5>   <p className="card-text text-muted">{warehouse.location}</p></div>
       <div className="card-body">
      
-      
-
         <p>
           Capacity:{" "}
           <strong>

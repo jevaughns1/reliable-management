@@ -1,24 +1,47 @@
 import { useState, useEffect } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, FormGroup } from "react-bootstrap";
 import toast from "react-hot-toast";
-
-import { createProduct, getAllCategories } from "../api/warehouseApi";
+import { createProduct, getAllCategories, addProductToWarehouse, getAllWarehouses } from "../api/warehouseApi";
 
 export default function CreateProductModal({ show, onClose, onCreated }) {
-  const [categories, setCategories] = useState([]);
 
-  const [name, setName] = useState("");
-  const [sku, setSku] = useState("");
-  const [description, setDescription] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [unit, setUnit] = useState("");
-  const [price, setPrice] = useState("");
-  const [isHazardous, setIsHazardous] = useState(false);
-  const [expirationRequired, setExpirationRequired] = useState(false);
+  const [productData, setProductData] = useState({
+    name: "",
+    sku: "",
+    description: "",
+    categoryId: "",
+    unit: "",
+    price: "",
+    isHazardous: false,
+    expirationRequired: false,
+    storageLocation: ""
+  });
+const [categories, setCategories] = useState([]);
+  const [warehouses, setWarehouses] = useState([]);
+  const [destinationId, setDestinationId] = useState(0);
+  const [quantity, setQuantity] = useState(1);
 
-  // Load categories ONLY when modal opens
+  // Helper function to update any field in the productData object
+  const handleProductChange = (field, value) => {
+    setProductData(prev => ({ ...prev, [field]: value }));
+  };
+    useEffect(() => {
+    const loadWarehouses = async () => {
+      const allWarehouses = await getAllWarehouses();
+      
+      const filteredWarehouses = allWarehouses.map(warehouse => ({
+        warehouseId: warehouse.warehouseId,
+        name: warehouse.name,
+        location: warehouse.location
+      }));
+
+      setWarehouses(filteredWarehouses);
+    };
+    loadWarehouses();
+  }, []);
+
   useEffect(() => {
-    async function loadCategories() {
+    const loadCats = async () => {
       try {
         const data = await getAllCategories();
         setCategories(data);
@@ -28,68 +51,119 @@ export default function CreateProductModal({ show, onClose, onCreated }) {
       }
     }
 
-    if (show) loadCategories();
+    if (show) loadCats();
   }, [show]);
 
+
+ const handleClose = () => {
+   
+      setProductData({
+        name: "", sku: "", description: "", categoryId: "", unit: "", price: "",
+        isHazardous: false, expirationRequired: false,  storageLocation: ""
+      });
+      // Reset other states
+      setDestinationId(0);
+      setQuantity(1);
+      onClose();
+  }
+
+
+
   const handleCreate = async () => {
+   if (!productData.name || !productData.sku) {
+      toast.error("Name and SKU are required.");
+      return;
+    }
+    if (Number(quantity) <= 0) {
+      toast.error("Quantity must be greater than zero.");
+      return;
+    }
+    if (!productData.categoryId) {
+      toast.error("Please select a category");
+      return;
+    }
+    if (!destinationId || destinationId === 0) {
+      toast.error("Please select a destination warehouse.");
+      return;
+    }
+
     try {
-      await createProduct({
-        name,
-        sku,
-        description,
-        categoryId: Number(categoryId),
-        unit,
-        price: Number(price),
-        isHazardous,
-        expirationRequired,
+      const createdProduct = await createProduct({
+        name: productData.name,
+        sku: productData.sku,
+        description: productData.description,
+        categoryId: Number(productData.categoryId),
+        unit: productData.unit,
+        price: Number(productData.price),
+        isHazardous: productData.isHazardous,
+        expirationRequired: productData.expirationRequired,
       });
 
-      toast.success("Product created!");
-      onClose();
+      const stockDto = {
+        productPublicId: createdProduct.publicId,
+        quantity: Number(quantity),
+        storageLocation: productData.storageLocation
+      };
+   
+
+      await addProductToWarehouse(Number(destinationId), stockDto); 
+
+    
+      toast.success("Product created and initial stock added!");
+      handleClose(); 
       onCreated();
+      
     } catch (error) {
       console.error(error);
-      toast.error("Failed to create product");
+      toast.error("Failed to complete product setup (Creation or Stocking failed).");
     }
   };
 
+
   return (
-    <Modal show={show} onHide={onClose} centered>
+    <Modal show={show} onHide={handleClose} centered>
       <Modal.Header closeButton>
         <Modal.Title>Create New Product</Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
         <Form>
-          {/* Name */}
+
           <Form.Group className="mb-2">
             <Form.Label>Name</Form.Label>
-            <Form.Control value={name} onChange={(e) => setName(e.target.value)} />
-          </Form.Group>
-
-          {/* SKU */}
-          <Form.Group className="mb-2">
-            <Form.Label>SKU</Form.Label>
-            <Form.Control value={sku} onChange={(e) => setSku(e.target.value)} />
-          </Form.Group>
-
-          {/* Description */}
-          <Form.Group className="mb-2">
-            <Form.Label>Description</Form.Label>
-            <Form.Control
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+            <Form.Control 
+              value={productData.name} 
+              onChange={(e) => handleProductChange("name", e.target.value)} 
             />
           </Form.Group>
 
-          {/* Category Dropdown */}
+    
+          <Form.Group className="mb-2">
+            <Form.Label>SKU</Form.Label>
+            <Form.Control 
+              value={productData.sku} 
+              onChange={(e) => handleProductChange("sku", e.target.value)} 
+            />
+          </Form.Group>
+
+
+          <Form.Group className="mb-2">
+            <Form.Label>Description</Form.Label>
+            <Form.Control 
+              as="textarea" 
+              value={productData.description} 
+              onChange={(e) => handleProductChange("description", e.target.value)} 
+            />
+          </Form.Group>
+
+       
           <Form.Group className="mb-2">
             <Form.Label>Category</Form.Label>
-            <Form.Select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
+            <Form.Select 
+              value={productData.categoryId} 
+              onChange={(e) => handleProductChange("categoryId", e.target.value)}
             >
-              <option value="">Select a category</option>
+              <option value="">Select category…</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -98,52 +172,86 @@ export default function CreateProductModal({ show, onClose, onCreated }) {
             </Form.Select>
           </Form.Group>
 
-          {/* Unit */}
+    
           <Form.Group className="mb-2">
             <Form.Label>Unit</Form.Label>
-            <Form.Control value={unit} onChange={(e) => setUnit(e.target.value)} />
+            <Form.Control 
+              value={productData.unit} 
+              onChange={(e) => handleProductChange("unit", e.target.value)} 
+            />
           </Form.Group>
 
-          {/* Price */}
+  
           <Form.Group className="mb-2">
             <Form.Label>Price</Form.Label>
-            <Form.Control
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
+            <Form.Control 
+              type="number" 
+              step="0.01"
+              value={productData.price} 
+              onChange={(e) => handleProductChange("price", e.target.value)} 
             />
           </Form.Group>
+          
+          <hr className="my-3"/>
+          <h5>Initial Stock Placement</h5>
 
-          {/* Hazardous */}
-          <Form.Group className="form-check mt-2">
-            <Form.Check
-              label="Hazardous Material"
-              checked={isHazardous}
-              onChange={(e) => setIsHazardous(e.target.checked)}
+          <Form.Group className="mb-2">
+            <Form.Label>Destination Warehouse</Form.Label>
+            <Form.Select 
+                aria-label="Warehouse Selection"
+                value={destinationId}
+                onChange={(e) => setDestinationId(Number(e.target.value))}
+            >
+              <option value={0}>Select a Warehouse</option>
+              {warehouses.map((w) => (
+                <option key={w.warehouseId} value={w.warehouseId}>
+                  {w.name} — {w.location}
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+          
+         <Form.Group className="mb-2">
+            <Form.Label>Storage Location</Form.Label>
+            <Form.Control 
+              value={productData.storageLocation} 
+              onChange={(e) => handleProductChange("storageLocation", e.target.value)} 
             />
           </Form.Group>
-
-          {/* Requires Expiration */}
-          <Form.Group className="form-check mt-2">
-            <Form.Check
-              label="Requires Expiration Date"
-              checked={expirationRequired}
-              onChange={(e) => setExpirationRequired(e.target.checked)}
+          <Form.Group className="mb-3">
+            <Form.Label>Initial Quantity</Form.Label>
+            <Form.Control 
+                type="number" 
+                min="1" 
+                value={quantity} 
+                onChange={(e) => setQuantity(e.target.value)} 
             />
           </Form.Group>
+          
+          <hr className="my-3"/>
 
-          <Button
-            variant="primary"
-            className="w-100 mt-3"
-            onClick={handleCreate}
-          >
-            Create Product
+
+          <Form.Check
+            className="mt-2"
+            label="Hazardous Material"
+            checked={productData.isHazardous}
+            onChange={(e) => handleProductChange("isHazardous", e.target.checked)}
+          />
+          <Form.Check
+            className="mt-2"
+            label="Requires Expiration Date"
+            checked={productData.expirationRequired}
+            onChange={(e) => handleProductChange("expirationRequired", e.target.checked)}
+          />
+
+          <Button variant="primary" className="w-100 mt-3" onClick={handleCreate}>
+            Create Product & Add Stock
           </Button>
         </Form>
       </Modal.Body>
 
       <Modal.Footer>
-        <Button variant="secondary" onClick={onClose}>
+        <Button variant="secondary" onClick={handleClose}>
           Close
         </Button>
       </Modal.Footer>

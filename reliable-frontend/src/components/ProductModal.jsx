@@ -1,28 +1,38 @@
-import { useState } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import { Modal, Button, Form, Tabs, Tab } from "react-bootstrap";
 import toast from "react-hot-toast";
 
 import {
-  updateInventory,
-  deleteInventory,
+  updateProduct,
+  deleteProduct,
   transferInventory,
+  getAllWarehouses
 } from "../api/warehouseApi";
 
-export default function ProductModal({ item, warehouseId, show, onClose }) {
-  const [quantity, setQuantity] = useState(item.quantity);
-  const [storageLocation, setStorageLocation] = useState(item.storageLocation || "");
-  const [expirationDate, setExpirationDate] = useState(item.expirationDate || "");
-  const [destinationId, setDestinationId] = useState("");
+
+export default function ProductModal({ item, warehouseId, show, onClose, categories, onTransferSuccess }) {
+
+
+  const [product, setProduct] = useState(item.product); 
+
+
+  const [destinationId, setDestinationId] = useState(0);
+  const [warehouses, setWarehouses] = useState([]);
+
+ 
+  useEffect(() => {
+    const loadWarehouses = async () => {
+      const allWarehouses = await getAllWarehouses();
+      const availableWarehouses = allWarehouses.filter(w => w.warehouseId !== warehouseId);
+      setWarehouses(availableWarehouses);
+    };
+    loadWarehouses();
+  }, [warehouseId]);
 
   const handleUpdate = async () => {
     try {
-      await updateInventory(warehouseId, item.productPublicId, {
-        quantity,
-        storageLocation,
-        expirationDate,
-      });
-
-      toast.success("Inventory updated!");
+      await updateProduct(item.product.publicId, { ...product });
+      toast.success("Product updated!");
       onClose();
     } catch (err) {
       console.error(err);
@@ -32,9 +42,10 @@ export default function ProductModal({ item, warehouseId, show, onClose }) {
 
   const handleDelete = async () => {
     try {
-      await deleteInventory(warehouseId, item.productPublicId);
+      await deleteProduct(item.product.publicId);
 
-      toast.success("Item deleted!");
+      toast.success("Product deleted!");
+        onTransferSuccess(item.product.publicId);
       onClose();
     } catch (err) {
       console.error(err);
@@ -42,90 +53,203 @@ export default function ProductModal({ item, warehouseId, show, onClose }) {
     }
   };
 
-
   const handleTransfer = async () => {
     try {
+      if (!destinationId || destinationId === 0) {
+        toast.error("Please select a destination warehouse.");
+        return;
+      }
+
       await transferInventory({
-        productPublicId: item.productPublicId,
+        productPublicId: item.product.publicId,
         sourceWarehouseId: warehouseId,
         destinationWarehouseId: parseInt(destinationId),
-        transferNotes: `${item.name} was transferred to ${destinationId}`,
+        quantity: item.quantity,
       });
 
       toast.success("Product transferred!");
+    setDestinationId(0);
+    
+      if (onTransferSuccess) {
+          onTransferSuccess(item.product.publicId);
+      }
+      
       onClose();
     } catch (err) {
       console.error(err);
       toast.error("Transfer failed");
     }
+  
   };
 
+  if (!item || !item.product) {
+    return null;
+  }
+  
   return (
-    <Modal show={show} onHide={onClose} centered>
+    <Modal show={show} onHide={onClose} centered size="lg">
       <Modal.Header closeButton>
-        <Modal.Title>{item.product.name}</Modal.Title>
+        <Modal.Title>Edit Product — {product.name}</Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
-        <Form>
-          {/* QUANTITY */}
-          <Form.Group className="mb-3">
-            <Form.Label>Quantity</Form.Label>
-            <Form.Control
-              type="number"
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-            />
-          </Form.Group>
+        <Tabs defaultActiveKey="edit" className="mb-3">
+          <Tab eventKey="edit" title="Edit Product">
+            <Form>
 
-          {/* STORAGE */}
-          <Form.Group className="mb-3">
-            <Form.Label>Storage Location</Form.Label>
-            <Form.Control
-              value={storageLocation}
-              onChange={(e) => setStorageLocation(e.target.value)}
-            />
-          </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Name</Form.Label>
+                <Form.Control
+                  value={product.name}
+                  onChange={(e) =>
+                    setProduct({ ...product, name: e.target.value })
+                  }
+                />
+              </Form.Group>
 
-          {/* EXPIRATION */}
-          <Form.Group className="mb-3">
-            <Form.Label>Expiration Date</Form.Label>
-            <Form.Control
-              type="date"
-              value={expirationDate}
-              onChange={(e) => setExpirationDate(e.target.value)}
-            />
-          </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>SKU</Form.Label>
+                <Form.Control
+                  value={product.sku}
+                  onChange={(e) =>
+                    setProduct({ ...product, sku: e.target.value })
+                  }
+                />
+              </Form.Group>
 
-          {/* UPDATE + DELETE */}
-          <div className="d-flex gap-2 mb-3">
-            <Button variant="primary" className="w-50" onClick={handleUpdate}>
-              Update
-            </Button>
-            <Button variant="danger" className="w-50" onClick={handleDelete}>
-              Delete
-            </Button>
-          </div>
+              <Form.Group className="mb-3">
+                <Form.Label>Description</Form.Label>
+                <Form.Control
+                  as="textarea"
+                 
+                  value={product.description}
+                  onChange={(e) =>
+                    setProduct({ ...product, description: e.target.value })
+                  }
+                />
+              </Form.Group>
 
-          <hr />
+              <Form.Group className="mb-3">
+                  <Form.Label>Categories</Form.Label>
+         <Form.Select 
+    aria-label="Category Selection"
+    value={product.categoryId || ""}
+    onChange={(e) => {
+      const newCategoryId = e.target.value ? Number(e.target.value) : 0;
+      setProduct({
+        ...product,
+        categoryId: newCategoryId
+      });
+    }}
+  >
+        <option value="">Select a Category</option>
+        
+        {categories.map((cat) => (
+           
+          <option key={cat.id} value={cat.id}>
+            {cat.name}
+          </option>
+        ))}
+      </Form.Select>
+              </Form.Group>
 
-          {/* TRANSFER */}
-          <h5>Transfer Product</h5>
-          <Form.Control
-            className="mb-2"
-            type="number"
-            placeholder="Destination Warehouse ID"
-            value={destinationId}
-            onChange={(e) => setDestinationId(e.target.value)}
-          />
-          <Button variant="warning" className="w-100" onClick={handleTransfer}>
-            Transfer
-          </Button>
-        </Form>
+              <Form.Group className="mb-3">
+                <Form.Label>Unit</Form.Label>
+                <Form.Control
+                  value={product.unit}
+                  onChange={(e) =>
+                    setProduct({ ...product, unit: e.target.value })
+                  }
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Price</Form.Label>
+                <Form.Control
+                  type="number"
+                  step="0.01"
+                  value={product.price}
+                  onChange={(e) =>
+                    setProduct({ ...product, price: Number(e.target.value) })
+                  }
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Check
+                  label="Hazardous Material?"
+                  checked={product.isHazardous}
+                  onChange={(e) =>
+                    setProduct({ ...product, isHazardous: e.target.checked })
+                  }
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Check
+                  label="Expiration Required?"
+                  checked={product.expirationRequired}
+                  onChange={(e) =>
+                    setProduct({
+                      ...product,
+                      expirationRequired: e.target.checked,
+                    })
+                  }
+                />
+              </Form.Group>
+
+              <Button variant="primary" className="w-100" onClick={handleUpdate}>
+                Save Changes
+              </Button>
+
+              <Button
+                variant="danger"
+                className="w-100 mt-2"
+                onClick={handleDelete}
+              >
+                Delete Product
+              </Button>
+            </Form>
+          </Tab>
+          <Tab eventKey="transfer" title="Transfer Inventory">
+            <Form>
+              <Form.Group className="mb-3">
+                <Form.Label>Destination Warehouse</Form.Label>
+                <Form.Select 
+    aria-label="Warehouse Selection"
+    value={destinationId}
+    onChange={(e) => {
+      setDestinationId(Number(e.target.value));
+    }}
+  >
+        <option value={0}>Select a Warehouse</option>
+        
+        {warehouses.map((w) => (
+           
+          <option key={w.warehouseId} value={w.warehouseId}>
+            {w.name} — {w.location}
+          </option>
+        ))}
+      </Form.Select>
+              </Form.Group>
+
+              <Button
+                variant="warning"
+                className="w-100"
+                onClick={handleTransfer}
+                disabled={destinationId === 0}
+              >
+                Transfer Product
+              </Button>
+            </Form>
+          </Tab>
+        </Tabs>
       </Modal.Body>
 
       <Modal.Footer>
-        <Button variant="secondary" onClick={onClose}>Close</Button>
+        <Button variant="secondary" onClick={onClose}>
+          Close
+        </Button>
       </Modal.Footer>
     </Modal>
   );
