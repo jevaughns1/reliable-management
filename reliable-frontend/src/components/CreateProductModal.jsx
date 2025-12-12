@@ -3,8 +3,36 @@ import { Modal, Button, Form, FormGroup } from "react-bootstrap";
 import toast from "react-hot-toast";
 import { createProduct, getAllCategories, addProductToWarehouse, getAllWarehouses } from "../api/warehouseApi";
 
+/**
+ * @typedef {object} ProductData
+ * @property {string} name - Product name.
+ * @property {string} sku - Stock Keeping Unit.
+ * @property {string} description - Product description.
+ * @property {string} categoryId - The ID of the product's category.
+ * @property {string} unit - The unit of measure (e.g., 'EA', 'KG').
+ * @property {string} price - The unit price.
+ * @property {boolean} isHazardous - Flag if the product is hazardous.
+ * @property {boolean} expirationRequired - Flag if an expiration date must be provided.
+ * @property {string} storageLocation - The specific storage location in the warehouse.
+ */
+
+/**
+ * Modal component for creating a new product and immediately adding its initial stock
+ * to a selected warehouse.
+ *
+ * @param {object} props
+ * @param {boolean} props.show - Controls the visibility of the modal.
+ * @param {function} props.onClose - Function to be called when the modal is closed.
+ * @param {function} props.onCreated - Function to be called after a product is successfully created and stocked (e.g., to refresh lists).
+ * @author Jevaughn Stewart
+ * @returns {JSX.Element}
+ */
 export default function CreateProductModal({ show, onClose, onCreated }) {
 
+  /**
+   * State for the core product attributes.
+   * @type {[ProductData, function]}
+   */
   const [productData, setProductData] = useState({
     name: "",
     sku: "",
@@ -17,34 +45,74 @@ export default function CreateProductModal({ show, onClose, onCreated }) {
     storageLocation: ""
   });
   
+  /**
+   * State for categories loaded from the API to populate the select dropdown.
+   * @type {[Array<object>, function]}
+   */
   const [categories, setCategories] = useState([]);
+  
+  /**
+   * State for warehouses loaded from the API to populate the destination dropdown.
+   * @type {[Array<object>, function]}
+   */
   const [warehouses, setWarehouses] = useState([]);
+  
+  /**
+   * State for the ID of the warehouse where initial stock will be placed.
+   * @type {[number, function]}
+   */
   const [destinationId, setDestinationId] = useState(0);
+  
+  /**
+   * State for the initial quantity of stock to be added.
+   * @type {[number, function]}
+   */
   const [quantity, setQuantity] = useState(1);
 
+  /**
+   * State for the batch expiration date (string 'YYYY-MM-DD').
+   * @type {[string, function]}
+   */
   const [initialExpirationDate, setInitialExpirationDate] = useState(""); 
 
+  /**
+   * Generic handler for updating fields in the productData state object.
+   * @param {string} field - The key of the field to update.
+   * @param {*} value - The new value for the field.
+   */
   const handleProductChange = (field, value) => {
     setProductData(prev => ({ ...prev, [field]: value }));
   };
   
 
+  /**
+   * useEffect hook to load all available warehouses once on component mount.
+   * Warehouses are used for selecting the initial stock destination.
+   */
   useEffect(() => {
     const loadWarehouses = async () => {
-      const allWarehouses = await getAllWarehouses();
-      
-      const filteredWarehouses = allWarehouses.map(warehouse => ({
-        warehouseId: warehouse.warehouseId,
-        name: warehouse.name,
-        location: warehouse.location
-      }));
+      try {
+        const allWarehouses = await getAllWarehouses();
+        
+        const filteredWarehouses = allWarehouses.map(warehouse => ({
+          warehouseId: warehouse.warehouseId,
+          name: warehouse.name,
+          location: warehouse.location
+        }));
 
-      setWarehouses(filteredWarehouses);
+        setWarehouses(filteredWarehouses);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load warehouses");
+      }
     };
     loadWarehouses();
   }, []);
 
-  // Existing effect to load categories
+  /**
+   * useEffect hook to load all available categories when the modal is shown.
+   * Categories are used for product classification.
+   */
   useEffect(() => {
     const loadCats = async () => {
       try {
@@ -60,6 +128,9 @@ export default function CreateProductModal({ show, onClose, onCreated }) {
   }, [show]);
 
 
+  /**
+   * Resets all form states and calls the parent's onClose handler to dismiss the modal.
+   */
   const handleClose = () => {
     
       setProductData({
@@ -73,7 +144,16 @@ export default function CreateProductModal({ show, onClose, onCreated }) {
       onClose();
   }
 
+  /**
+   * Handles the creation process:
+   * 1. Performs client-side validation.
+   * 2. Calls {@link createProduct} to register the new product.
+   * 3. Calls {@link addProductToWarehouse} to place the initial stock.
+   * 4. Shows success toast and calls {@link handleClose} and {@link onCreated}.
+   * * @async
+   */
   const handleCreate = async () => {
+   // --- Validation ---
    if (!productData.name || !productData.sku) {
       toast.error("Name and SKU are required.");
       return;
@@ -97,6 +177,7 @@ export default function CreateProductModal({ show, onClose, onCreated }) {
     }
 
     try {
+      // 1. Create the Product
       const createdProduct = await createProduct({
         name: productData.name,
         sku: productData.sku,
@@ -108,14 +189,16 @@ export default function CreateProductModal({ show, onClose, onCreated }) {
         expirationRequired: productData.expirationRequired,
       });
 
+      // 2. Prepare Stock DTO
       const stockDto = {
-        productPublicId: createdProduct.publicId,
+        productPublicId: createdProduct.publicId, // Use the publicId returned from creation
         quantity: Number(quantity),
         storageLocation: productData.storageLocation,
+        // Send null if not required/provided, otherwise send the date string
         expirationDate: initialExpirationDate || null 
       };
    
-
+      // 3. Add Stock to Warehouse
       await addProductToWarehouse(Number(destinationId), stockDto); 
 
     
@@ -125,7 +208,8 @@ export default function CreateProductModal({ show, onClose, onCreated }) {
       
     } catch (error) {
       console.error(error);
-      toast.error("Failed to complete product setup (Creation or Stocking failed).");
+      // More descriptive error message
+      toast.error("Failed to complete product setup (Creation or Stocking failed). Check console for details.");
     }
   };
 
@@ -138,6 +222,7 @@ export default function CreateProductModal({ show, onClose, onCreated }) {
 
       <Modal.Body>
         <Form>
+          {/* --- Product Metadata Fields --- */}
           <Form.Group className="mb-2">
             <Form.Label>Name</Form.Label>
             <Form.Control 
@@ -199,6 +284,7 @@ export default function CreateProductModal({ show, onClose, onCreated }) {
           <hr className="my-3"/>
           <h5>Initial Stock Placement</h5>
 
+          {/* --- Initial Stock Fields --- */}
           <Form.Group className="mb-2">
             <Form.Label>Destination Warehouse</Form.Label>
             <Form.Select 
@@ -250,6 +336,7 @@ export default function CreateProductModal({ show, onClose, onCreated }) {
           <hr className="my-3"/>
 
 
+          {/* --- Flags --- */}
           <Form.Check
             className="mt-2"
             label="Hazardous Material"
