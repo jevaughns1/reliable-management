@@ -1,54 +1,83 @@
-import { Nav } from 'react-bootstrap';
-import { Link, useLocation } from 'react-router-dom'; 
-
+import { useState } from "react";
+import { Nav, Button } from "react-bootstrap";
+import { Link, useLocation } from "react-router-dom";
 export default function Sidebar() {
   const location = useLocation();
-
-  const SIDEBAR_WIDTH = "260px";
+  const [open, setOpen] = useState(false);
 
   return (
     <div
-      className="d-flex flex-column p-3 text-white bg-dark shadow"
-      style={{
-        width: SIDEBAR_WIDTH,
-        minHeight: "100vh",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        zIndex: 1000, 
-      }}
+      className="sidebar bg-dark text-white p-3 shadow"
+      style={{ zIndex: 1000 }}
     >
-      <h3 className="mb-4 border-bottom pb-2">Reliable Admin</h3>
+    
+      <div className="d-flex justify-content-between align-items-center d-md-none">
+        <h3 className="mb-0">Reliable Admin</h3>
 
-      <Nav className="flex-column">
-        <Nav.Item className="mb-2">
-          <Nav.Link 
-            as={Link} 
-            to="/" 
-            className={location.pathname === '/' ? 'text-primary fw-bold' : 'text-white'}
-          >
-            Dashboard
-          </Nav.Link>
-        </Nav.Item>
-        <Nav.Item className="mb-2">
-          <Nav.Link 
-            as={Link} 
-            to="/warehouses" 
-            className={location.pathname === '/warehouses' ? 'text-primary fw-bold' : 'text-white'}
-          >
-            Warehouses
-          </Nav.Link>
-        </Nav.Item>
-        <Nav.Item className="mb-2">
-          <Nav.Link 
-            as={Link} 
-            to="/products" 
-            className={location.pathname === '/products' ? 'text-primary fw-bold' : 'text-white'}
-          >
-            Products
-          </Nav.Link>
-        </Nav.Item>
-      </Nav>
+        <Button
+          variant="outline-light"
+          className="border-0"
+          onClick={() => setOpen(!open)}
+        >
+          ☰
+        </Button>
+      </div>
+
+  
+      <h3 className="mb-4 border-bottom pb-2 d-none d-md-block">
+        
+        <strong>Reliable Admin</strong>
+      </h3>
+
+  
+      <div className={`${open ? "d-block" : "d-none"} d-md-block mt-3`}>
+        <Nav className="flex-column">
+          <Nav.Item className="mb-2">
+            <Nav.Link
+              as={Link}
+              to="/"
+              className={
+                location.pathname === "/"
+                  ? "text-primary fw-bold"
+                  : "text-white"
+              }
+              onClick={() => setOpen(false)}
+            >
+             Inventory Control 
+            </Nav.Link>
+          </Nav.Item>
+
+          <Nav.Item className="mb-2">
+            <Nav.Link
+              as={Link}
+              to="/warehouses"
+              className={
+                location.pathname === "/warehouses"
+                  ? "text-primary fw-bold"
+                  : "text-white"
+              }
+              onClick={() => setOpen(false)}
+            >
+              Warehouses
+            </Nav.Link>
+          </Nav.Item>
+
+          <Nav.Item className="mb-2">
+            <Nav.Link
+              as={Link}
+              to="/products"
+              className={
+                location.pathname === "/products"
+                  ? "text-primary fw-bold"
+                  : "text-white"
+              }
+              onClick={() => setOpen(false)}
+            >
+              Products
+            </Nav.Link>
+          </Nav.Item>
+        </Nav>
+      </div>
     </div>
   );
 }

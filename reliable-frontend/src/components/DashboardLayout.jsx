@@ -1,24 +1,17 @@
-import Sidebar from './Sidebar'; 
+import Sidebar from './Sidebar';
 import { Container } from 'react-bootstrap';
 import { Outlet } from 'react-router-dom';
 
-
-const SIDEBAR_WIDTH = "260px";
-
 export default function DashboardLayout() {
-  return (<>
-   <div className="d-flex">
-      <Sidebar /> 
-      <div 
-        className="flex-grow-1"
-        style={{ marginLeft: SIDEBAR_WIDTH, padding: '15px' }} 
-      >
+  return (
+    <div className="d-flex flex-column flex-md-row">
+      <Sidebar />
+
+      <div className="flex-grow-1 content-with-sidebar p-3">
         <Container fluid>
-            <Outlet />
+          <Outlet />
         </Container>
       </div>
     </div>
-  </>
-   
   );
 }

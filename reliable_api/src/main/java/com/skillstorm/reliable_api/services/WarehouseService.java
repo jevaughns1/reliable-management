@@ -64,4 +64,10 @@ public class WarehouseService {
     private WarehouseDTO toDTO(Warehouse warehouse) {
         return modelMapper.map(warehouse, WarehouseDTO.class);
     }
+    public void deleteWarehouse(Long id) {
+        if (!warehouseRepo.existsById(id)) {
+             throw new RuntimeException("Warehouse not found");
+        }
+        warehouseRepo.deleteById(id);
+    }
 }
