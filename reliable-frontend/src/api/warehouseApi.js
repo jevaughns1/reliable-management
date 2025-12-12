@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_URL = "http://3.141.170.4:8080";
+
+const API_URL = "http://3.141.170.4:8080"; 
 
 const api = axios.create({
   baseURL: API_URL,
@@ -12,8 +13,9 @@ export const getAllWarehouses = async () => {
   return res.data;
 };
 
+
 export const getAllInventory = async () => {
-  const res = await api.get("/warehouses");
+  const res = await api.get("/warehouses"); 
   return res.data;
 };
 
@@ -21,12 +23,14 @@ export const getInventoryByWarehouse = async (warehouseId) => {
   const res = await api.get(`/warehouses/inventory/${warehouseId}`);
   return res.data;
 };
+
 export const updateProduct = (id, body) =>
   api.put(`/api/warehouse/products/${id}`, body);
 
 
 export const deleteProduct = (id) =>
-  api.delete(`${API_URL}/api/warehouse/products/${id}`);
+  // NOTE: Cleaned up the URL interpolation here to use the established `api` instance's baseURL
+  api.delete(`/api/warehouse/products/${id}`); 
 
 
 export const getAllCategories = async () => {
@@ -73,4 +77,61 @@ export const createWarehouse =async(dto)=>{
 export const createProduct = async (productDto) => {
   const res = await api.post("/api/warehouse/products", productDto);
   return res.data;
+};
+
+
+
+/**
+ * Updates an entire warehouse record (PUT request).
+ * Requires all non-null fields defined in WarehouseUpdateDTO.
+ * @param {number} id - The ID of the warehouse to update.
+ * @param {object} dto - The WarehouseUpdateDTO payload.
+ * @returns {Promise<object>} The updated WarehouseDTO.
+ */
+export const updateWarehouse = async (id, dto) => {
+  const res = await api.put(`/warehouses/${id}`, dto);
+  return res.data;
+};
+
+/**
+ * Partially updates a warehouse record (PATCH request).
+ * Only sends fields that need updating (WarehousePatchDTO).
+ * @param {number} id - The ID of the warehouse to patch.
+ * @param {object} dto - The WarehousePatchDTO payload.
+ * @returns {Promise<object>} The updated WarehouseDTO.
+ */
+export const patchWarehouse = async (id, dto) => {
+  const res = await api.patch(`/warehouses/${id}`, dto);
+  return res.data;
+};
+
+/**
+ * Deletes a warehouse record (DELETE request).
+ * @param {number} id - The ID of the warehouse to delete.
+ * @returns {Promise<void>} Resolves on success (HTTP 204 No Content).
+ */
+export const deleteWarehouse = (id) => {
+  return api.delete(`/warehouses/${id}`);
+};
+
+
+/**
+ * Retrieves inventory items that will expire within the next N days.
+ * Maps to GET /warehouses/inventory/alerts/expiring/{days}
+ * @param {number} days - The lookahead window (e.g., 30 days).
+ * @returns {Promise<Array<object>>} List of WarehouseInventoryDTOs.
+ */
+export const getNearingExpirationAlerts = async (days) => {
+    const res = await api.get(`/warehouses/inventory/alerts/expiring/${days}`);
+    return res.data;
+};
+
+/**
+ * Retrieves inventory items that have already expired.
+ * Maps to GET /warehouses/inventory/alerts/expired
+ * @returns {Promise<Array<object>>} List of WarehouseInventoryDTOs.
+ */
+export const getExpiredInventory = async () => {
+    const res = await api.get("/warehouses/inventory/alerts/expired");
+    return res.data;
 };

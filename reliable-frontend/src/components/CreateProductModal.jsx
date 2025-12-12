@@ -16,16 +16,20 @@ export default function CreateProductModal({ show, onClose, onCreated }) {
     expirationRequired: false,
     storageLocation: ""
   });
-const [categories, setCategories] = useState([]);
+  
+  const [categories, setCategories] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [destinationId, setDestinationId] = useState(0);
   const [quantity, setQuantity] = useState(1);
 
-  // Helper function to update any field in the productData object
+  const [initialExpirationDate, setInitialExpirationDate] = useState(""); 
+
   const handleProductChange = (field, value) => {
     setProductData(prev => ({ ...prev, [field]: value }));
   };
-    useEffect(() => {
+  
+
+  useEffect(() => {
     const loadWarehouses = async () => {
       const allWarehouses = await getAllWarehouses();
       
@@ -40,6 +44,7 @@ const [categories, setCategories] = useState([]);
     loadWarehouses();
   }, []);
 
+  // Existing effect to load categories
   useEffect(() => {
     const loadCats = async () => {
       try {
@@ -55,19 +60,18 @@ const [categories, setCategories] = useState([]);
   }, [show]);
 
 
- const handleClose = () => {
-   
+  const handleClose = () => {
+    
       setProductData({
         name: "", sku: "", description: "", categoryId: "", unit: "", price: "",
         isHazardous: false, expirationRequired: false,  storageLocation: ""
       });
-      // Reset other states
+     
       setDestinationId(0);
       setQuantity(1);
+      setInitialExpirationDate("");
       onClose();
   }
-
-
 
   const handleCreate = async () => {
    if (!productData.name || !productData.sku) {
@@ -86,6 +90,11 @@ const [categories, setCategories] = useState([]);
       toast.error("Please select a destination warehouse.");
       return;
     }
+    // Validation for expiration date if required by the product
+    if (productData.expirationRequired && !initialExpirationDate) {
+        toast.error("This product requires an expiration date.");
+        return;
+    }
 
     try {
       const createdProduct = await createProduct({
@@ -102,7 +111,8 @@ const [categories, setCategories] = useState([]);
       const stockDto = {
         productPublicId: createdProduct.publicId,
         quantity: Number(quantity),
-        storageLocation: productData.storageLocation
+        storageLocation: productData.storageLocation,
+        expirationDate: initialExpirationDate || null 
       };
    
 
@@ -128,7 +138,6 @@ const [categories, setCategories] = useState([]);
 
       <Modal.Body>
         <Form>
-
           <Form.Group className="mb-2">
             <Form.Label>Name</Form.Label>
             <Form.Control 
@@ -137,7 +146,6 @@ const [categories, setCategories] = useState([]);
             />
           </Form.Group>
 
-    
           <Form.Group className="mb-2">
             <Form.Label>SKU</Form.Label>
             <Form.Control 
@@ -145,7 +153,6 @@ const [categories, setCategories] = useState([]);
               onChange={(e) => handleProductChange("sku", e.target.value)} 
             />
           </Form.Group>
-
 
           <Form.Group className="mb-2">
             <Form.Label>Description</Form.Label>
@@ -156,7 +163,6 @@ const [categories, setCategories] = useState([]);
             />
           </Form.Group>
 
-       
           <Form.Group className="mb-2">
             <Form.Label>Category</Form.Label>
             <Form.Select 
@@ -172,7 +178,6 @@ const [categories, setCategories] = useState([]);
             </Form.Select>
           </Form.Group>
 
-    
           <Form.Group className="mb-2">
             <Form.Label>Unit</Form.Label>
             <Form.Control 
@@ -181,7 +186,6 @@ const [categories, setCategories] = useState([]);
             />
           </Form.Group>
 
-  
           <Form.Group className="mb-2">
             <Form.Label>Price</Form.Label>
             <Form.Control 
@@ -218,6 +222,7 @@ const [categories, setCategories] = useState([]);
               onChange={(e) => handleProductChange("storageLocation", e.target.value)} 
             />
           </Form.Group>
+          
           <Form.Group className="mb-3">
             <Form.Label>Initial Quantity</Form.Label>
             <Form.Control 
@@ -226,6 +231,20 @@ const [categories, setCategories] = useState([]);
                 value={quantity} 
                 onChange={(e) => setQuantity(e.target.value)} 
             />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Batch Expiration Date</Form.Label>
+            <Form.Control
+                type="date"
+                value={initialExpirationDate}
+                onChange={(e) => setInitialExpirationDate(e.target.value)}
+                required={productData.expirationRequired}
+            />
+            {productData.expirationRequired && (
+                <Form.Text className="text-danger">
+                    This product requires an expiration date.
+                </Form.Text>
+            )}
           </Form.Group>
           
           <hr className="my-3"/>

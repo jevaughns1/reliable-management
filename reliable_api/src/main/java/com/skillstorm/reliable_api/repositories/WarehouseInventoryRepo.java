@@ -1,5 +1,6 @@
 package com.skillstorm.reliable_api.repositories;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,4 +27,8 @@ public interface WarehouseInventoryRepo extends JpaRepository<WarehouseInventory
     List<WarehouseInventory> findAllWithProductsByWarehouseIdAndIsDeletedFalse(@Param("warehouseId") Long warehouseId);
     List<WarehouseInventory> findByWarehouse(Warehouse warehouse);
    List<WarehouseInventory> findAllByWarehouse_WarehouseId(Long warehouseId);
+
+   List<WarehouseInventory> findByExpirationDateBetween(LocalDate dateFrom, LocalDate dateTo);
+
+    List<WarehouseInventory> findByExpirationDateBefore(LocalDate date);
 }

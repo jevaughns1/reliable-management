@@ -1,5 +1,6 @@
 package com.skillstorm.reliable_api.services;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -229,6 +230,31 @@ public void deleteInventoryFromWarehouse(Long warehouseId, String productPublicI
                     "Warehouse capacity exceeded. Max: " + warehouse.getMaxCapacity() +
                     ", Requested New Capacity: " + newCapacity);
         }
+    }
+
+    public List<WarehouseInventoryDTO> getNearingExpirationAlerts(int days) {
+        LocalDate today = LocalDate.now();
+        LocalDate expirationThreshold = today.plusDays(days);
+        
+        List<WarehouseInventory> expiringItems = 
+            warehouseInventoryRepo.findByExpirationDateBetween(today, expirationThreshold);
+
+        // Convert entities to DTOs for safe transfer to the controller/frontend
+        return expiringItems.stream()
+            .map(item -> modelMapper.map(item, WarehouseInventoryDTO.class))
+            .collect(Collectors.toList());
+    }
+    
+    /**
+     * Retrieves inventory items that have already expired.
+     */
+    public List<WarehouseInventoryDTO> getExpiredInventory() {
+        List<WarehouseInventory> expiredItems = 
+            warehouseInventoryRepo.findByExpirationDateBefore(LocalDate.now());
+
+        return expiredItems.stream()
+            .map(item -> modelMapper.map(item, WarehouseInventoryDTO.class))
+            .collect(Collectors.toList());
     }
 
     /**
