@@ -10,7 +10,6 @@ export default function Sidebar() {
       className="sidebar bg-dark text-white p-3 shadow"
       style={{ zIndex: 1000 }}
     >
-    
       <div className="d-flex justify-content-between align-items-center d-md-none">
         <h3 className="mb-0">Reliable Admin</h3>
 
@@ -22,14 +21,10 @@ export default function Sidebar() {
           ☰
         </Button>
       </div>
-
-  
       <h3 className="mb-4 border-bottom pb-2 d-none d-md-block">
         
         <strong>Reliable Admin</strong>
       </h3>
-
-  
       <div className={`${open ? "d-block" : "d-none"} d-md-block mt-3`}>
         <Nav className="flex-column">
           <Nav.Item className="mb-2">
