@@ -4,6 +4,24 @@ import { Modal, Button, Form } from "react-bootstrap";
 import { createWarehouse, updateWarehouse, deleteWarehouse } from "../api/warehouseApi";
 import toast from "react-hot-toast";
 
+/**
+ * @file WarehouseFormModal.jsx
+ * @author Jevaughn Stewart
+ * @version 1.0
+ */
+
+/**
+ * Modal component for creating a new warehouse or editing/deleting an existing one.
+ * The mode is determined by the presence of the {@code warehouse} prop.
+ *
+ * @param {object} props
+ * @param {boolean} props.show - Controls the visibility of the modal.
+ * @param {function} props.onClose - Function to be called when the modal is closed.
+ * @param {object} [props.warehouse] - The warehouse object to edit. If null/undefined, the modal is in Create mode.
+ * @param {function} [props.onSaved] - Callback invoked after a successful creation or update (to trigger list refresh).
+ * @param {function} [props.onDeleted] - Callback invoked after a successful deletion, receives the deleted warehouse ID.
+ * @returns {JSX.Element}
+ */
 export default function WarehouseFormModal({
   show,
   onClose,
@@ -11,15 +29,27 @@ export default function WarehouseFormModal({
   onSaved,        
   onDeleted,    
 }) {
+  /** Flag to determine if the modal is in Edit mode (true) or Create mode (false). */
   const isEdit = !!warehouse;
 
-
+  // --- State for Form Inputs ---
+  
+  /** State for the warehouse name. */
   const [name, setName] = useState(warehouse?.name || "");
+  
+  /** State for the warehouse location. */
   const [location, setLocation] = useState(warehouse?.location || "");
+  
+  /** State for the warehouse maximum capacity. */
   const [maxCapacity, setMaxCapacity] = useState(
     warehouse?.maxCapacity ?? ""
   );
 
+  /**
+   * Handles the creation (POST) or updating (PUT) of the warehouse data.
+   * Performs basic validation before calling the appropriate API function.
+   * @async
+   */
   const handleSave = async () => {
 
     if (!name || !location || !maxCapacity) {
@@ -35,10 +65,11 @@ export default function WarehouseFormModal({
 
     try {
       if (isEdit) {
-     
+        // Update existing warehouse
         await updateWarehouse(warehouse.warehouseId, payload);
         toast.success("Warehouse updated!");
       } else {
+        // Create new warehouse
         await createWarehouse(payload);
         toast.success("Warehouse created!");
       }
@@ -52,13 +83,20 @@ export default function WarehouseFormModal({
     }
   };
 
+  /**
+   * Handles the deletion of the warehouse (only available in Edit mode).
+   * Requires user confirmation before proceeding.
+   * @async
+   */
   const handleDelete = async () => {
     if (!warehouse) return;
-    if (!window.confirm(`Are you sure you want to delete warehouse "${warehouse.name}"?`)) return;
+    if (!window.confirm(`Are you sure you want to delete warehouse "${warehouse.name}"? This action cannot be undone.`)) return;
 
     try {
       await deleteWarehouse(warehouse.warehouseId);
       toast.success("Warehouse deleted.");
+      
+      // Notify parent component of deletion, passing the ID
       if (onDeleted) onDeleted(warehouse.warehouseId); 
       onClose();
     } catch (err) {
@@ -111,14 +149,13 @@ export default function WarehouseFormModal({
         </Form>
       </Modal.Body>
 
-      {/* Corrected Modal.Footer class and structure */}
       <Modal.Footer className="d-flex justify-content-between">
         {isEdit ? (
           <Button variant="danger" onClick={handleDelete}>
             Delete
           </Button>
         ) : (
-          // Use an empty element to keep space consistency when not in edit mode
+          // Placeholder div to maintain justification in create mode
           <div /> 
         )}
 

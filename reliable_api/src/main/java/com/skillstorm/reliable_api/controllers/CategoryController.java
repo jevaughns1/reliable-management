@@ -23,6 +23,13 @@ import com.skillstorm.reliable_api.services.CategoryService;
 import jakarta.validation.Valid;
 
 
+/**
+ * REST controller for managing product categories.
+ * Provides endpoints for creating, retrieving, updating (full and partial),
+ * and deleting categories.
+ * * @author Jevaughn Stewart
+ * @version 1.0
+ */
 @RestController
 @CrossOrigin(origins = {
     "http://localhost:5173",
@@ -31,16 +38,22 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/categories")
 public class CategoryController {
 
-  
-
     private final CategoryService categoryService;
     
-
+    /**
+     * Constructs the CategoryController, injecting the required CategoryService.
+     * * @param categoryService The service layer component responsible for category business logic.
+     */
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
        
     }
 
+/**
+ * Handles the HTTP POST request to create a new product category.
+ * * @param category The CategoryDTO containing the data for the new category.
+ * @return A ResponseEntity containing the newly created CategoryDTO and an HTTP status of OK.
+ */
 @PostMapping
 public ResponseEntity<CategoryDTO>postCategory(@RequestBody CategoryDTO category) {
  CategoryDTO createdCategory = categoryService.createCategory(category);
@@ -48,12 +61,22 @@ public ResponseEntity<CategoryDTO>postCategory(@RequestBody CategoryDTO category
  return new ResponseEntity<>(createdCategory,HttpStatus.OK);
 }
  
+/**
+ * Handles the HTTP GET request to retrieve all product categories.
+ * * @return A ResponseEntity containing a list of all CategoryDTOs and an HTTP status of OK.
+ */
 @GetMapping
 public ResponseEntity<List<CategoryDTO>> getCategory() {
     List<CategoryDTO> categories= categoryService.getAllCategory();
     return new ResponseEntity<>(categories,HttpStatus.OK);
 }
 
+/**
+ * Handles the HTTP PUT request to fully update an existing product category.
+ * * @param id The ID of the category to update.
+ * @param category The CategoryUpdateDTO containing the full set of updated category data.
+ * @return A ResponseEntity containing the updated CategoryDTO and an HTTP status of OK.
+ */
 @PutMapping("/{id}")
 public ResponseEntity<CategoryDTO> putCategory(@PathVariable Long id, @RequestBody @Valid CategoryUpdateDTO category) {
     
@@ -61,12 +84,23 @@ public ResponseEntity<CategoryDTO> putCategory(@PathVariable Long id, @RequestBo
     return new ResponseEntity<>(updatedCategory,HttpStatus.OK);
 }
 
+/**
+ * Handles the HTTP PATCH request to partially update an existing product category.
+ * * @param id The ID of the category to partially update.
+ * @param category The CategoryPatchDTO containing the fields to be updated.
+ * @return A ResponseEntity containing the updated CategoryDTO and an HTTP status of OK.
+ */
 @PatchMapping("/{id}")
 public ResponseEntity<CategoryDTO> patchCategory(@PathVariable Long id, @RequestBody @Valid CategoryPatchDTO category)
    {CategoryDTO updatedCategory= categoryService.updateCategory(id,category);
     return new ResponseEntity<>(updatedCategory,HttpStatus.OK);
 }
 
+/**
+ * Handles the HTTP DELETE request to delete a product category by its ID.
+ * * @param id The ID of the category to delete.
+ * @return A ResponseEntity with an HTTP status of 204 No Content upon successful deletion.
+ */
 @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
         
