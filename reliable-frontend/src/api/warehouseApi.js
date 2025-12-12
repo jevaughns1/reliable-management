@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://reliable-api-alb-1037154942.us-east-2.elb.amazonaws.com";
+const API_URL = "https://api.reliable.click";
 
 const api = axios.create({
   baseURL: API_URL,
