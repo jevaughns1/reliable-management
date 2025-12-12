@@ -71,6 +71,23 @@ public ResponseEntity<Void> deleteInventory(
     inventoryService.deleteInventoryFromWarehouse(warehouseId, productPublicId);
     return ResponseEntity.noContent().build();
 }
+@GetMapping("/alerts/expiring/{days}")
+    public ResponseEntity<List<WarehouseInventoryDTO>> getNearingExpirationAlerts(@PathVariable int days) {
+        if (days < 1) {
+             return ResponseEntity.badRequest().build();
+        }
+        List<WarehouseInventoryDTO> alerts = inventoryService.getNearingExpirationAlerts(days);
+        return ResponseEntity.ok(alerts);
+    }
 
+    /**
+     * GET /warehouses/inventory/alerts/expired
+     * Retrieves all inventory items that have an expiration date in the past.
+     */
+    @GetMapping("/alerts/expired")
+    public ResponseEntity<List<WarehouseInventoryDTO>> getExpiredInventory() {
+        List<WarehouseInventoryDTO> expiredItems = inventoryService.getExpiredInventory();
+        return ResponseEntity.ok(expiredItems);
+    }
 
 }
