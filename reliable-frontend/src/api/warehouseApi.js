@@ -1,197 +1,59 @@
 import axios from "axios";
 
 /**
- * Base URL for the Reliable API.
- * @type {string}
+ * @file warehouseApi.js
+ * @description Centralized API client for all inventory, warehouse, product, 
+ * and category management endpoints. It utilizes Axios for making HTTP requests 
+ * to the Spring Boot backend API.
+ * @author Jevaughn Stewart
+ * @version 1.0
+ */
+
+/**
+ * The base URL for the backend API.
+ * @constant {string}
  */
 const API_URL = "https://api.reliable.click";
 
 /**
- * Configured Axios instance for making requests to the Reliable API.
- * Sets the base URL and standard headers.
- * @author Jevaughn Stewart
- * @version 1.0
+ * Configures an Axios instance with the base URL and default headers.
  */
 const api = axios.create({
   baseURL: API_URL,
   headers: { "Content-Type": "application/json" }
 });
 
+
 /**
- * Fetches all warehouse records.
+ * Retrieves a list of all warehouses.
  * Maps to GET /warehouses
  * @async
- * @returns {Promise<Array<object>>} A promise that resolves to a list of WarehouseDTOs.
+ * @returns {Promise<Array<object>>} List of all WarehouseDTOs.
  */
 export const getAllWarehouses = async () => {
   const res = await api.get("/warehouses");
   return res.data;
 };
 
-
-/**
- * Fetches all inventory records across all warehouses.
- * NOTE: The path used here `/warehouses` appears to be incorrect for general inventory.
- * Assuming the intention was to fetch all inventory (e.g., from an endpoint like /warehouses/inventory).
- * If `/warehouses` is correct, it returns warehouses, not inventory.
- * Maps to GET /warehouses (Returns all warehouses, potentially incorrect for inventory).
- * @async
- * @returns {Promise<Array<object>>} A promise that resolves to a list of WarehouseDTOs or InventoryDTOs (depending on actual endpoint logic).
- */
-export const getAllInventory = async () => {
-  const res = await api.get("/warehouses"); 
-  return res.data;
-};
-
-/**
- * Fetches all inventory records for a specific warehouse.
- * Maps to GET /warehouses/inventory/{warehouseId}
- * @async
- * @param {number} warehouseId - The ID of the warehouse.
- * @returns {Promise<object>} A promise that resolves to a WarehouseInventoryByWarehouseDTO.
- */
-export const getInventoryByWarehouse = async (warehouseId) => {
-  const res = await api.get(`/warehouses/inventory/${warehouseId}`);
-  return res.data;
-};
-
-/**
- * Fully updates (PUT) a product record identified by its public ID.
- * Maps to PUT /api/warehouse/products/{id}
- * @param {string} id - The public ID (UUID) of the product to update.
- * @param {object} body - The ProductUpdateDTO payload.
- * @returns {Promise<object>} A promise that resolves to the updated ProductDTO.
- */
-export const updateProduct = (id, body) =>
-  api.put(`/api/warehouse/products/${id}`, body);
-
-
-/**
- * Logically deletes (soft-delete) a product record identified by its public ID.
- * Maps to DELETE /api/warehouse/products/{id}
- * @param {string} id - The public ID (UUID) of the product to delete.
- * @returns {Promise<void>} A promise that resolves on successful deletion.
- */
-export const deleteProduct = (id) =>
-  // NOTE: Cleaned up the URL interpolation here to use the established `api` instance's baseURL
-  api.delete(`/api/warehouse/products/${id}`); 
-
-
-/**
- * Fetches all category records.
- * Maps to GET /api/categories
- * @async
- * @returns {Promise<Array<object>>} A promise that resolves to a list of CategoryDTOs.
- */
-export const getAllCategories = async () => {
-  const res = await api.get("/api/categories");
-  return res.data;
-};
-
-/**
- * Fetches all active product records.
- * Maps to GET /api/warehouse/products
- * @async
- * @returns {Promise<Array<object>>} A promise that resolves to a list of ProductDTOs.
- */
-export const getAllProducts = async () => {
-  const res = await api.get("/api/warehouse/products");
-  return res.data;
-};
-
-
-/**
- * Adds a new product inventory record to a specified warehouse.
- * Maps to POST /warehouses/inventory/{warehouseId}
- * @async
- * @param {number} warehouseId - The ID of the target warehouse.
- * @param {object} dto - The WarehouseInventoryCreateDTO payload.
- * @returns {Promise<object>} A promise that resolves to the created WarehouseInventoryDTO.
- */
-export const addProductToWarehouse = async (warehouseId, dto) => {
-  const res = await api.post(`/warehouses/inventory/${warehouseId}`, dto);
-  return res.data;
-};
-
-/**
- * Updates an inventory record (quantity, expiration, location) for a specific product in a specific warehouse.
- * Maps to PUT /warehouses/inventory/{warehouseId}/{productPublicId}
- * @async
- * @param {number} warehouseId - The ID of the warehouse.
- * @param {string} productPublicId - The public ID of the product.
- * @param {object} body - The WarehouseInventoryUpdateDTO payload.
- * @returns {Promise<object>} A promise that resolves to the updated WarehouseInventoryDTO.
- */
-export const updateInventory = async (warehouseId, productPublicId, body) => {
-  const res = await api.put(
-    `/warehouses/inventory/${warehouseId}/${productPublicId}`,
-    body
-  );
-  return res.data;
-};
-
-
-/**
- * Deletes a product's entire inventory record from a specific warehouse.
- * Maps to DELETE /warehouses/inventory/{warehouseId}/{productPublicId}
- * @async
- * @param {number} warehouseId - The ID of the warehouse.
- * @param {string} productPublicId - The public ID of the product.
- * @returns {Promise<void>} A promise that resolves on successful deletion.
- */
-export const deleteInventory = async (warehouseId, productPublicId) => {
-  const res = await api.delete(
-    `/warehouses/inventory/${warehouseId}/${productPublicId}`
-  );
-  return res.data;
-};
-
-/**
- * Initiates an inventory transfer from a source to a destination warehouse.
- * Maps to POST /warehouses/inventory/transfer
- * @async
- * @param {object} transferDto - The InventoryTransferDTO payload.
- * @returns {Promise<object>} A promise that resolves to the Axios response for the transfer.
- */
-export const transferInventory = async (transferDto) => {
-  return api.post("/warehouses/inventory/transfer", transferDto);
-};
-
-
 /**
  * Creates a new warehouse record.
  * Maps to POST /warehouses
  * @async
- * @param {object} dto - The WarehouseCreateDTO payload.
- * @returns {Promise<object>} A promise that resolves to the created WarehouseDTO.
+ * @param {object} dto - The WarehouseCreationDTO payload.
+ * @returns {Promise<object>} The newly created WarehouseDTO.
  */
-export const createWarehouse =async(dto)=>{
+export const createWarehouse = async(dto) => {
   const res = await api.post(`/warehouses`, dto);
   return res.data;
 }
 
 /**
- * Creates a new product record.
- * Maps to POST /api/warehouse/products
- * @async
- * @param {object} productDto - The ProductDTO payload.
- * @returns {Promise<object>} A promise that resolves to the created ProductDTO.
- */
-export const createProduct = async (productDto) => {
-  const res = await api.post("/api/warehouse/products", productDto);
-  return res.data;
-};
-
-
-
-/**
  * Updates an entire warehouse record (PUT request).
- * Requires all non-null fields defined in WarehouseUpdateDTO.
  * Maps to PUT /warehouses/{id}
  * @async
- * @param {number} id - The ID of the warehouse to update.
+ * @param {number|string} id - The ID of the warehouse to update.
  * @param {object} dto - The WarehouseUpdateDTO payload.
- * @returns {Promise<object>} A promise that resolves to the updated WarehouseDTO.
+ * @returns {Promise<object>} The updated WarehouseDTO.
  */
 export const updateWarehouse = async (id, dto) => {
   const res = await api.put(`/warehouses/${id}`, dto);
@@ -200,12 +62,11 @@ export const updateWarehouse = async (id, dto) => {
 
 /**
  * Partially updates a warehouse record (PATCH request).
- * Only sends fields that need updating (WarehousePatchDTO).
  * Maps to PATCH /warehouses/{id}
  * @async
- * @param {number} id - The ID of the warehouse to patch.
+ * @param {number|string} id - The ID of the warehouse to patch.
  * @param {object} dto - The WarehousePatchDTO payload.
- * @returns {Promise<object>} A promise that resolves to the updated WarehouseDTO.
+ * @returns {Promise<object>} The updated WarehouseDTO.
  */
 export const patchWarehouse = async (id, dto) => {
   const res = await api.patch(`/warehouses/${id}`, dto);
@@ -215,20 +76,164 @@ export const patchWarehouse = async (id, dto) => {
 /**
  * Deletes a warehouse record (DELETE request).
  * Maps to DELETE /warehouses/{id}
- * @param {number} id - The ID of the warehouse to delete.
- * @returns {Promise<void>} A promise that resolves on success (HTTP 204 No Content).
+ * @param {number|string} id - The ID of the warehouse to delete.
+ * @returns {Promise<void>} Resolves on success (HTTP 204 No Content).
  */
 export const deleteWarehouse = (id) => {
   return api.delete(`/warehouses/${id}`);
 };
 
 
+// --- PRODUCT MANAGEMENT (CATALOG) ---
+
+/**
+ * Retrieves a list of all product categories.
+ * Maps to GET /api/categories
+ * @async
+ * @returns {Promise<Array<object>>} List of CategoryDTOs.
+ */
+export const getAllCategories = async () => {
+  const res = await api.get("/api/categories");
+  return res.data;
+};
+
+/**
+ * Retrieves a list of all products in the catalog.
+ * Maps to GET /api/warehouse/products
+ * @async
+ * @returns {Promise<Array<object>>} List of ProductDTOs.
+ */
+export const getAllProducts = async () => {
+  const res = await api.get("/api/warehouse/products");
+  return res.data;
+};
+
+/**
+ * Creates a new product in the catalog.
+ * Maps to POST /api/warehouse/products
+ * @async
+ * @param {object} productDto - The ProductCreationDTO payload.
+ * @returns {Promise<object>} The newly created ProductDTO.
+ */
+export const createProduct = async (productDto) => {
+  const res = await api.post("/api/warehouse/products", productDto);
+  return res.data;
+};
+
+/**
+ * Updates a product in the catalog.
+ * Maps to PUT /api/warehouse/products/{id}
+ * @param {number|string} id - The ID of the product to update.
+ * @param {object} body - The ProductUpdateDTO payload.
+ * @returns {Promise<object>} The updated ProductDTO.
+ */
+export const updateProduct = (id, body) =>
+  api.put(`/api/warehouse/products/${id}`, body);
+
+
+/**
+ * Deletes a product from the catalog.
+ * Maps to DELETE /api/warehouse/products/{id}
+ * @param {number|string} id - The ID of the product to delete.
+ * @returns {Promise<void>} Resolves on success (HTTP 204 No Content).
+ */
+export const deleteProduct = (id) =>
+  api.delete(`/api/warehouse/products/${id}`); 
+
+
+// --- INVENTORY / STOCK MANAGEMENT ---
+
+/**
+ * Retrieves inventory details across all warehouses.
+ * Maps to GET /warehouses
+ * *NOTE: The endpoint used here returns warehouses, not raw inventory. It may need to be corrected 
+ * to a dedicated /inventory endpoint on the backend.*
+ * @async
+ * @returns {Promise<Array<object>>} List of all warehouses (containing inventory data).
+ */
+export const getAllInventory = async () => {
+  // Check backend endpoint: this likely returns warehouses, not flat inventory list
+  const res = await api.get("/warehouses"); 
+  return res.data;
+};
+
+/**
+ * Retrieves the inventory for a specific warehouse.
+ * Maps to GET /warehouses/inventory/{warehouseId}
+ * *NOTE: Based on the path, the correct API path is likely /warehouses/{warehouseId}/inventory.*
+ * @async
+ * @param {number|string} warehouseId - The ID of the warehouse.
+ * @returns {Promise<Array<object>>} List of WarehouseInventoryDTOs for the warehouse.
+ */
+export const getInventoryByWarehouse = async (warehouseId) => {
+  const res = await api.get(`/warehouses/inventory/${warehouseId}`);
+  return res.data;
+};
+
+/**
+ * Adds a new product stock to a specific warehouse inventory.
+ * Maps to POST /warehouses/inventory/{warehouseId}
+ * @async
+ * @param {number|string} warehouseId - The ID of the target warehouse.
+ * @param {object} dto - The InventoryAdditionDTO payload (quantity, location, etc.).
+ * @returns {Promise<object>} The updated WarehouseInventoryDTO.
+ */
+export const addProductToWarehouse = async (warehouseId, dto) => {
+  const res = await api.post(`/warehouses/inventory/${warehouseId}`, dto);
+  return res.data;
+};
+
+/**
+ * Updates the stock details (e.g., quantity, location) for a specific product in a warehouse.
+ * Maps to PUT /warehouses/inventory/{warehouseId}/{productPublicId}
+ * @async
+ * @param {number|string} warehouseId - The ID of the warehouse.
+ * @param {number|string} productPublicId - The ID of the product item.
+ * @param {object} body - The InventoryUpdateDTO payload.
+ * @returns {Promise<object>} The updated WarehouseInventoryDTO.
+ */
+export const updateInventory = async (warehouseId, productPublicId, body) => {
+  const res = await api.put(
+    `/warehouses/inventory/${warehouseId}/${productPublicId}`,
+    body
+  );
+  return res.data;
+};
+
+/**
+ * Removes (deletes) a specific product stock record from a warehouse inventory.
+ * Maps to DELETE /warehouses/inventory/{warehouseId}/{productPublicId}
+ * @async
+ * @param {number|string} warehouseId - The ID of the warehouse.
+ * @param {number|string} productPublicId - The ID of the product item to remove.
+ * @returns {Promise<void>} Resolves on success (HTTP 204 No Content).
+ */
+export const deleteInventory = async (warehouseId, productPublicId) => {
+  const res = await api.delete(
+    `/warehouses/inventory/${warehouseId}/${productPublicId}`
+  );
+  return res.data;
+};
+
+/**
+ * Initiates the transfer of stock between two warehouses.
+ * Maps to POST /warehouses/inventory/transfer
+ * @async
+ * @param {object} transferDto - The InventoryTransferDTO payload.
+ * @returns {Promise<object>} The HTTP response object.
+ */
+export const transferInventory = async (transferDto) => {
+  return api.post("/warehouses/inventory/transfer", transferDto);
+};
+
+// --- EXPIRATION ALERTS ---
+
 /**
  * Retrieves inventory items that will expire within the next N days.
  * Maps to GET /warehouses/inventory/alerts/expiring/{days}
  * @async
  * @param {number} days - The lookahead window (e.g., 30 days).
- * @returns {Promise<Array<object>>} A promise that resolves to a list of WarehouseInventoryDTOs.
+ * @returns {Promise<Array<object>>} List of WarehouseInventoryDTOs.
  */
 export const getNearingExpirationAlerts = async (days) => {
     const res = await api.get(`/warehouses/inventory/alerts/expiring/${days}`);
@@ -239,7 +244,7 @@ export const getNearingExpirationAlerts = async (days) => {
  * Retrieves inventory items that have already expired.
  * Maps to GET /warehouses/inventory/alerts/expired
  * @async
- * @returns {Promise<Array<object>>} A promise that resolves to a list of WarehouseInventoryDTOs.
+ * @returns {Promise<Array<object>>} List of WarehouseInventoryDTOs.
  */
 export const getExpiredInventory = async () => {
     const res = await api.get("/warehouses/inventory/alerts/expired");
