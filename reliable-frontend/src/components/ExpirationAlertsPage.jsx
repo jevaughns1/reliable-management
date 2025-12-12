@@ -112,14 +112,18 @@ export default function ExpirationAlertsPage() {
                 key={`${item.productPublicId}-${item.storageLocation}`} 
                 className={`d-flex justify-content-between align-items-center list-group-item-${variant}`}
             >
-                <div className="flex-grow-1">
-                    <strong className="text-truncate d-block">{item.product.name}</strong>
-                    <small className="text-muted">
+                {/* FIX: Added w-100 and overflow-hidden to the flex-grow-1 container 
+                  to ensure the text-truncate class works correctly, preventing overflow. 
+                */}
+                <div className="flex-grow-1 w-100 overflow-hidden me-3"> 
+                    {/* Ensure long text is truncated */}
+                    <strong className="text-truncate d-block">{item.product.name}</strong> 
+                    <small className="text-muted text-truncate d-block">
                         SKU: {item.product.sku} | Location: {item.storageLocation || 'N/A'}
                     </small>
                 </div>
                 
-                <div className="text-end ms-3">
+                <div className="text-end flex-shrink-0"> {/* Use flex-shrink-0 to protect the badge/qty area */}
                     <Badge bg={variant} className="mb-1 d-block">
                         {statusText}
                     </Badge>

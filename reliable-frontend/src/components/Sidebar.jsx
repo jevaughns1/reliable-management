@@ -102,6 +102,20 @@ export default function Sidebar() {
               Products
             </Nav.Link>
           </Nav.Item>
+          <Nav.Item className="mb-2">
+            <Nav.Link
+              as={Link}
+              to="/alerts"
+              className={
+                location.pathname === "/alerts"
+                  ? "text-primary fw-bold"
+                  : "text-white"
+              }
+              onClick={() => setOpen(false)}
+            >
+              Alerts
+            </Nav.Link>
+          </Nav.Item>
         </Nav>
       </div>
     </div>
