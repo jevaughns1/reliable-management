@@ -6,13 +6,10 @@ export default function ProductsPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [sortBy, setSortBy] = useState("name");
   const [sortDir, setSortDir] = useState("asc");
-
-
   useEffect(() => {
     const loadProducts = async () => {
       const data = await getAllProducts();
@@ -62,7 +59,7 @@ export default function ProductsPage() {
       
       
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="m-0">Products</h1>
+        <h1 className="m-0"><strong>Products</strong></h1>
 
         <button className="btn btn-success" onClick={() => setShowCreate(true)}>
           + Create Product
