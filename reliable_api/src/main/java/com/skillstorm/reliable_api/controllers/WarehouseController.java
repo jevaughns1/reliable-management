@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,5 +56,11 @@ public class WarehouseController {
     public ResponseEntity<WarehouseDTO> patchWarehouse(@PathVariable Long id,
                                                        @Valid @RequestBody WarehousePatchDTO dto) {
         return ResponseEntity.ok(warehouseService.patchWarehouse(id, dto));
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteWarehouse(@PathVariable Long id) {
+        warehouseService.deleteWarehouse(id);
+        // Returns 204 No Content on successful deletion
+        return ResponseEntity.noContent().build(); 
     }
 }

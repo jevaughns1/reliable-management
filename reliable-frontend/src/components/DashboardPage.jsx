@@ -24,7 +24,7 @@ export default function DashboardPage() {
   return (
     <>
         <div className="container-fluid py-4"> 
-          <h1 className="mb-4">Dashboard</h1>
+          <h1 className="mb-4"><strong>Inventory Control Hub</strong></h1>
 
           <div className="card p-3 mb-4 shadow-sm">
             <label className="form-label fw-bold">Select Warehouse</label>
