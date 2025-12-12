@@ -142,7 +142,7 @@ export default function ExpirationAlertsPage() {
     return (
         <div className="container py-4">
             <h2 className="mb-4 d-flex justify-content-between align-items-center">
-                Expiration & Obsolescence Alerts
+                <strong>Expiration & Obsolescence Alerts</strong>
                 <Badge bg={totalAlerts > 0 ? "danger" : "success"} pill>
                     {totalAlerts} Critical Items
                 </Badge>

@@ -20,9 +20,11 @@ import { Outlet } from 'react-router-dom';
  */
 export default function DashboardLayout() {
   return (
+    <> 
+   
     <div className="d-flex flex-column flex-md-row">
-      <Sidebar />
-
+      
+    <Sidebar />
       <div className="flex-grow-1 content-with-sidebar p-3">
         {/* Container fluid ensures the content takes up the full width of the main content area */}
         <Container fluid>
@@ -30,6 +32,7 @@ export default function DashboardLayout() {
           <Outlet />
         </Container>
       </div>
-    </div>
+    </div></>
+    
   );
 }

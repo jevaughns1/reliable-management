@@ -160,7 +160,6 @@ export default function ProductsSection({ warehouseId }) {
   return (
     <div className="mt-4">
       <h3>
-        Products in:{" "}
         <span className="text-primary fw-bold">
           {warehouse.warehouseName || "Select a warehouse"}
         </span>

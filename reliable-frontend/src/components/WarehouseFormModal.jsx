@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, Card } from "react-bootstrap"; // <-- Added Card import
 // Note: Assuming 'updateWarehouse' is the PUT call for full updates
 import { createWarehouse, updateWarehouse, deleteWarehouse } from "../api/warehouseApi";
 import toast from "react-hot-toast";
@@ -82,17 +82,15 @@ export default function WarehouseFormModal({
       toast.error(errorMessage);
     }
   };
-
+  
   /**
-   * Handles the deletion of the warehouse (only available in Edit mode).
-   * Requires user confirmation before proceeding.
+   * Private function to execute the actual deletion API call.
+   * Called only after user confirms via the custom toast.
    * @async
    */
-  const handleDelete = async () => {
-    if (!warehouse) return;
-    if (!window.confirm(`Are you sure you want to delete warehouse "${warehouse.name}"? This action cannot be undone.`)) return;
-
+  const confirmAndDelete = async () => {
     try {
+      // Assuming warehouse exists, as it's checked in handleDelete
       await deleteWarehouse(warehouse.warehouseId);
       toast.success("Warehouse deleted.");
       
@@ -104,6 +102,56 @@ export default function WarehouseFormModal({
       const errorMessage = err.response?.data?.message || "Failed to delete warehouse.";
       toast.error(errorMessage);
     }
+  };
+
+  /**
+   * Initiates the deletion confirmation process using a custom react-hot-toast notification.
+   */
+  const handleDelete = () => {
+    if (!warehouse) return;
+
+    // Use a custom toast for confirmation instead of window.confirm
+    toast.custom((t) => (
+      // Using Card for a structured, visible notification component
+      <Card className="bg-white shadow-lg" style={{ maxWidth: '300px' }}>
+        <Card.Header className="bg-danger text-white py-2">
+          Confirmation Required
+        </Card.Header>
+        <Card.Body className="p-3">
+          <p className="mb-3">
+            Are you sure you want to delete warehouse 
+            <strong className="d-block mt-1">"{warehouse.name}"</strong>?
+            This action cannot be undone.
+          </p>
+          <div className="d-flex justify-content-end gap-2">
+            
+            {/* CANCEL Button: Dismisses the toast */}
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => toast.dismiss(t.id)}
+            >
+              Cancel
+            </Button>
+         
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => {
+                toast.dismiss(t.id);
+                confirmAndDelete();
+              }}
+            >
+              Delete Permanently
+            </Button>
+          </div>
+        </Card.Body>
+      </Card>
+    ), { 
+        duration: Infinity, // Keep the toast visible until a choice is made
+        id: 'delete-confirm-toast', // Use a stable ID to prevent duplicates
+        position: 'top-center' 
+    });
   };
 
   return (
